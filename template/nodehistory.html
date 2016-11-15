@@ -1,0 +1,20 @@
+<div class="container">
+  <h2>Striped Rows</h2>
+  <p>The .table-striped class adds zebra-stripes to a table:</p>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>时间</th>
+        <th>数据</th>
+      </tr>
+    </thead>
+    <tbody>
+        {{ range .Datas }}
+      <tr>
+        <td>{{ .Time }}</td>
+        <td>{{ .Data}}</td>
+        {{ end }}
+      </tr>
+    </tbody>
+  </table>
+</div>

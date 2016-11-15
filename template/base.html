@@ -1,0 +1,95 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>危险源监控</title>
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/static/img/favicon.ico">
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+
+  <!-- jQuery -->
+  <!-- <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script> -->
+  <script src="/static/js/jquery.min.js"></script>
+  <!-- HighCharts JS -->
+<!-- <script src="http://code.highcharts.com/highcharts.js"></script> -->
+  <script src="/static/js/highcharts.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="/static/js/bootstrap.min.js"></script>
+
+  <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href="/static/css/animate.css" rel="stylesheet" />
+  <link href="/static/css/style.css" rel="stylesheet">
+  <link href="/static/color/default.css" rel="stylesheet">
+
+  <link rel="shortcut icon" href="/static/img/favicon.ico">
+
+  <script src="/static/js/bootstrap.min.js"></script>
+  <script src="/static/js/jquery.easing.min.js"></script>
+  <script src="/static/js/jquery.scrollTo.js"></script>
+  <script src="/static/js/wow.min.js"></script>
+  <script src="/static/js/custom.js"></script>
+  <!-- <script src="/static/js/product_graphic.js"></script> -->
+
+</head>
+<body id="page-top" data-spy="scroll" data-target=".navbar-custom">
+<!--     <nav class="navbar navbar-custom navbar-fixed-top" role="navigation"> -->
+    <!--     <div class="container"> -->
+    <!--         <div class="navbar-header page-scroll"> -->
+    <!--             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse"> -->
+    <!--                 <i class="fa fa-bars"></i> -->
+    <!--             </button> -->
+    <!--             <a class="navbar-brand" href="index.html"> -->
+    <!--                 <h1>数据监测</h1> -->
+    <!--             </a> -->
+    <!--         </div> -->
+    <!--  -->
+    <!--         [> Collect the nav links, forms, and other content for toggling <] -->
+    <!--         <div class="collapse navbar-collapse navbar-right navbar-main-collapse"> -->
+    <!--             <ul class="nav navbar-nav"> -->
+    <!--                 <li class="active"><a href="#intro">主页</a></li> -->
+    <!--                 <li><a href="#about">关于</a></li> -->
+    <!--                 <li><a href="#service">监测</a></li> -->
+    <!--  -->
+    <!--                 <li><a href="admin">管理</a></li> -->
+    <!--             </ul> -->
+    <!--         </div> -->
+    <!--         [> /.navbar-collapse <] -->
+    <!--     </div> -->
+    <!--     [> /.container <] -->
+    <!-- </nav> -->
+
+    <nav class="navbar navbar-default" style="background-color:lightblue" role="navigation">
+        <div class="container" >
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <a class="navbar-brand" href="index.html">
+                    <h1>数据监测</h1>
+                </a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="/index">主页</a></li>
+                    <li><a href="#">关于</a></li>
+                    <li><a href="/admin">管理</a></li>
+
+                    <li><a href="/logout">退出</a></li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <div id="preloader">
+        <div id="load"></div>
+    </div>
+
+    {{ yield }}
+</body>
+</html>

@@ -1,0 +1,54 @@
+<div id="container"  style="width:80%; height:400px;">
+
+</div>
+
+<script>
+    $(function () { 
+        var options = {
+            chart: {
+                renderTo: 'container',
+                type: 'scatter',
+                events: {
+                    click: function () {
+        //                alert('chart clicked');
+                    }            
+
+                }},
+            title: {
+                text: '节点分布图'
+            },
+            xAxis: {
+                tickPixelInterval: 150,
+                maxZoom: 20
+            },
+            yAxis: {
+                minPadding: 0.2,
+                maxPadding: 0.2,
+            },
+
+            series:[{
+                name:'节点',
+                data: [
+                {{ range .Points}}
+                    [ {{ .X }}, {{ .Y }} ],
+                {{ end }}
+            ]
+            }],
+            plotOptions: {
+                series: {
+                    cursor: 'pointer',
+                    events: {
+                        click: function(event) {
+                            // Log to console
+                            console.log(event.point);
+                            window.location="/nodexy/"+event.point.x+"/"+event.point.y;
+                        }
+                    }
+                }
+            },
+
+        }
+
+        var myChart = new Highcharts.Chart(options);
+    })
+</script>
