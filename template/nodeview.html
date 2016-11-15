@@ -48,13 +48,13 @@
                         <input class="form-control" type="search" value="{{ .Describe }}" id="describe" name="describe" disabled>
                     </div>
                 </div>
-                <button id="submit" class="btn btn-warning " type="submit" disabled>提交</button>
+
+                <button type="submit" class="btn btn-primary " onclick="history();return false;">查看历史</button>
+                <button type="submit" class="btn btn-primary " onclick="modify();return false;">修改</button>
+                <button type="submit" id="submit" class="btn btn-warning "  disabled>提交</button>
+                <button id="delete" type="button" class="btn btn-danger " onclick="deletenode()" disabled>删除该节</button>
                 <div clsss="offset-md-10 ">
-                    <button type="button" class="btn btn-primary " onclick="history()">查看历史</button>
-                    <button type="button" class="btn btn-primary " onclick="modify()">修改</button>
 
-
-                    <button id="delete" type="button" class="btn btn-danger " onclick="deletenode()" disabled>删除该节</button>
                 </div>
             </div>
 
@@ -73,7 +73,11 @@
     }
 
     function deletenode() {
-        post('/delete/{{ .ID}}', {name: 'Johnny Bravo'});
+        // static bool clicked = false;
+        // alert("确定删除??");
+        // if (clicked)
+             post('/delete/{{ .ID}}');
+        // clicked = true;
     }
 
     function post(path, params, method) {
@@ -143,6 +147,7 @@
             }
         });
         chart = new Highcharts.Chart({
+
             chart: {
                 renderTo: 'container',
                 defaultSeriesType: 'spline',
