@@ -66,9 +66,9 @@ func messageHandler(client MQTT.Client, msg MQTT.Message) {
 		if OnLineNodeMap[m.ID] == nil {
 			if n := model.GetNodeByID(m.ID); n != nil {
 				OnLineNodeMap[m.ID] = NewOnLineNode(n)
+			} else {
+				return
 			}
-		} else {
-			return
 		}
 		OnLineNodeMap[m.ID].InsertData(m.Data)
 		OnLineNodeMap[m.ID].FreshData.Updata(m.Data)
