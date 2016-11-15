@@ -98,8 +98,8 @@ func init() {
 	}()
 
 	go func() {
-		if n := NewOnLineNode(model.GetNodeByID(5)); n != nil {
-			OnLineNodeMap[5] = n
+		if n := model.GetNodeByID(5); n != nil {
+			OnLineNodeMap[5] = NewOnLineNode(n)
 		} else {
 			return
 		}

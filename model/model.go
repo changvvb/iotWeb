@@ -74,7 +74,7 @@ func GetNodeByID(ID uint) *Node {
 
 //打开数据库
 func opendb() (*gorm.DB, error) {
-	db, err := gorm.Open("mysql", "root:changvvb@/iot?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", "root:root@/iot?charset=utf8&parseTime=True&loc=Local")
 	return db, err
 }
 
