@@ -47,9 +47,15 @@ func serverSetup() {
 	// server.Get("/node/:nodename")
 	server.Get("/admin", func(ctx *iris.Context) {
 
-		// points := []model.Point{{3, 4}, {4, 6}, {6, 3}, {3, 5}}
-		points := model.GetPoints()
-		log.Println(ctx.Render("admin.html", points))
+		type points struct {
+			Nodes         []model.Node
+			OnLineNodeMap map[uint]*mqtt.OnLineNode
+		}
+
+		p := &points{}
+		p.Nodes = model.GetNodes()
+		p.OnLineNodeMap = mqtt.OnLineNodeMap
+		log.Println(ctx.Render("admin.html", p))
 		/*      if ctx.Session().GetString("username") == "" { */
 		//     ctx.Render("admin.html", nil)
 		// } else {
@@ -156,6 +162,9 @@ func serverSetup() {
 			Y:        int(Y),
 		}
 		model.UpdateNode(&node, uint(ID))
+		if n := mqtt.OnLineNodeMap[uint(ID)]; n != nil {
+			n.UpdateNode()
+		}
 		ctx.Redirect("/node/" + fmt.Sprint(ID))
 
 	})

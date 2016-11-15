@@ -40,11 +40,20 @@
             series:[{
                 name:'节点',
                 data: [
-                {{ range .Points}}
+                {{ range .Nodes}}
                     [ {{ .X }}, {{ .Y }} ],
                 {{ end }}
             ]
-            }],
+            }, {
+                name:'在线节点',
+                 marker:{ radius: 10,fillColor: 'lightgreen'},
+                data:[
+                {{ range .OnLineNodeMap}}
+                    {x:{{ .X}},y:{{ .Y}},},
+                {{ end}}
+            ]
+        }
+        ],
             plotOptions: {
                 scatter: {
                 marker: {

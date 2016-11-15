@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -27,7 +26,7 @@ func init() {
 	//db.Create(&node)
 }
 
-func GetPoints() *Points {
+func GetNodes() []Node {
 	db, err := opendb()
 	if err != nil {
 		printlnLog("model:", err)
@@ -35,15 +34,9 @@ func GetPoints() *Points {
 
 	var nodes []Node
 	db.Find(&nodes)
-	points := make([]Point, len(nodes))
-	for index, node := range nodes {
-		fmt.Println(node.X, node.Y)
-		points[index].X = node.X
-		points[index].Y = node.Y
-	}
 
 	defer db.Close()
-	return &Points{points}
+	return nodes
 }
 
 func GetIdByPosition(x int, y int) uint {

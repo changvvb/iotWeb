@@ -15,6 +15,10 @@ type Message struct {
 	Data float64
 }
 
+type OnLinePoints struct {
+	OnLinePoints []model.Points
+}
+
 type OnLineNode struct {
 	model.Node
 	FreshData *FreshData
@@ -63,6 +67,8 @@ func messageHandler(client MQTT.Client, msg MQTT.Message) {
 			if n := model.GetNodeByID(m.ID); n != nil {
 				OnLineNodeMap[m.ID] = NewOnLineNode(n)
 			}
+		} else {
+			return
 		}
 		OnLineNodeMap[m.ID].InsertData(m.Data)
 		OnLineNodeMap[m.ID].FreshData.Updata(m.Data)
@@ -98,21 +104,51 @@ func init() {
 	}()
 
 	go func() {
-		if n := model.GetNodeByID(5); n != nil {
-			OnLineNodeMap[5] = NewOnLineNode(n)
+		var id uint
+		id = 5
+		if n := model.GetNodeByID(id); n != nil {
+			OnLineNodeMap[id] = NewOnLineNode(n)
 		} else {
 			return
 		}
 		for {
-			OnLineNodeMap[5].FreshData.Updata((float64(rand.Intn(100))))
+			OnLineNodeMap[id].FreshData.Updata((float64(rand.Intn(100))))
 			time.Sleep(time.Second * 1)
+		}
+	}()
+	go func() {
+		var id uint
+		id = 2
+		if n := model.GetNodeByID(id); n != nil {
+			OnLineNodeMap[id] = NewOnLineNode(n)
+		} else {
+			return
+		}
+		for {
+			if OnLineNodeMap[id] != nil {
+				OnLineNodeMap[id].FreshData.Updata((float64(rand.Intn(100))))
+				time.Sleep(time.Second * 1)
+			}
 		}
 	}()
 
 }
 
+func GetOnLinePoints() []model.Point {
+	points := make([]model.Point, 0)
+	for index, node := range OnLineNodeMap {
+		log.Println("onlinepoint:", index, node.X, node.Y)
+		var point model.Point
+		point.X, point.Y = node.X, node.Y
+		points = append(points, point)
+	}
+	return points
+}
+
 func NewOnLineNode(n *model.Node) *OnLineNode {
-	return &OnLineNode{FreshData: NewFreshData(n.ID)}
+	oln := &OnLineNode{FreshData: NewFreshData(n.ID)}
+	oln.Node = *n
+	return oln
 }
 
 func NewFreshData(id uint) *FreshData {
@@ -122,7 +158,7 @@ func NewFreshData(id uint) *FreshData {
 		for {
 			<-f.timer.C
 			f.IsFresh = false
-			OnLineNodeMap[f.NodeID] = nil
+			delete(OnLineNodeMap, f.NodeID)
 			return
 		}
 	}()
@@ -131,6 +167,10 @@ func NewFreshData(id uint) *FreshData {
 
 func (n *OnLineNode) InsertData(v float64) {
 	n.Node.InsertData(v)
+}
+
+func (n *OnLineNode) UpdateNode() {
+	n.Node = *model.GetNodeByID(n.ID)
 }
 
 func (f *FreshData) Updata(v float64) {
