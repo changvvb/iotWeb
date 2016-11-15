@@ -98,7 +98,11 @@ func init() {
 	}()
 
 	go func() {
-		OnLineNodeMap[5] = NewOnLineNode(model.GetNodeByID(5))
+		if n := NewOnLineNode(model.GetNodeByID(5)); n != nil {
+			OnLineNodeMap[5] = n
+		} else {
+			return
+		}
 		for {
 			OnLineNodeMap[5].FreshData.Updata((float64(rand.Intn(100))))
 			time.Sleep(time.Second * 1)
