@@ -1,6 +1,6 @@
 <div class="container">
-  <h2>Striped Rows</h2>
-  <p>The .table-striped class adds zebra-stripes to a table:</p>
+  <h2>节点{{ .ID}}</h2>
+  <p>这些都是历史数据</p>
   <table class="table table-striped">
     <thead>
       <tr>
@@ -9,7 +9,7 @@
       </tr>
     </thead>
     <tbody>
-        {{ range .Datas }}
+        {{ range .Data }}
       <tr>
         <td>{{ .Time }}</td>
         <td>{{ .Data}}</td>

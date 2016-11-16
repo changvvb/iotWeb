@@ -15,10 +15,6 @@ type Message struct {
 	Data float64
 }
 
-type OnLinePoints struct {
-	OnLinePoints []model.Points
-}
-
 type OnLineNode struct {
 	model.Node
 	FreshData *FreshData
@@ -70,7 +66,7 @@ func messageHandler(client MQTT.Client, msg MQTT.Message) {
 				return
 			}
 		}
-		OnLineNodeMap[m.ID].InsertData(m.Data)
+		// OnLineNodeMap[m.ID].InsertData(m.Data)
 		OnLineNodeMap[m.ID].FreshData.Updata(m.Data)
 		log.Println(m.ID, m.Data)
 	case "":
@@ -87,15 +83,18 @@ func init() {
 	opts.SetDefaultPublishHandler(messageHandler)
 
 	client = MQTT.NewClient(opts)
+
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 		return
 	}
 
-	if token := client.Subscribe("message", 0, nil); token.Wait() && token.Error() != nil {
-		log.Println(token.Error())
-		return
-	}
+	Subscribe("message", 0)
+
+	/*  if token := client.Subscribe("message", 0, nil); token.Wait() && token.Error() != nil { */
+	//     log.Println(token.Error())
+	//     return
+	// }
 
 	go func() {
 		for {
@@ -116,33 +115,19 @@ func init() {
 			time.Sleep(time.Second * 1)
 		}
 	}()
-	go func() {
-		var id uint
-		id = 2
-		if n := model.GetNodeByID(id); n != nil {
-			OnLineNodeMap[id] = NewOnLineNode(n)
-		} else {
-			return
-		}
-		for {
-			if OnLineNodeMap[id] != nil {
-				OnLineNodeMap[id].FreshData.Updata((float64(rand.Intn(100))))
-				time.Sleep(time.Second * 1)
-			}
-		}
-	}()
 
 }
 
-func GetOnLinePoints() []model.Point {
-	points := make([]model.Point, 0)
-	for index, node := range OnLineNodeMap {
-		log.Println("onlinepoint:", index, node.X, node.Y)
-		var point model.Point
-		point.X, point.Y = node.X, node.Y
-		points = append(points, point)
+func GetOffLineNode() []*model.Node {
+	nodes := model.GetNodes()
+	offlinenodes := make([]*model.Node, 0)
+	for key, n := range nodes {
+		//说明在线
+		if OnLineNodeMap[n.ID] == nil {
+			offlinenodes = append(offlinenodes, &nodes[key])
+		}
 	}
-	return points
+	return offlinenodes
 }
 
 func NewOnLineNode(n *model.Node) *OnLineNode {

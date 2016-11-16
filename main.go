@@ -35,8 +35,21 @@ func serverSetup() {
 		Layout: "base.html",
 	})).Directory("template", ".html")
 
-	server.Get("/test", func(ctx *iris.Context) {
-		ctx.Write("HI")
+	server.UseFunc(func(ctx *iris.Context) {
+		path := ctx.PathString()
+		if path != "/index" && path != "/logout" && path != "/login" && path != "/" {
+			if ctx.Session().GetString("username") != "" {
+				ctx.Next()
+			} else {
+				ctx.Redirect("/login")
+			}
+			return
+		}
+		ctx.Next()
+	})
+
+	server.Get("/", func(ctx *iris.Context) {
+		ctx.Redirect("/index")
 	})
 
 	server.Get("/index", func(ctx *iris.Context) {
@@ -48,12 +61,12 @@ func serverSetup() {
 	server.Get("/admin", func(ctx *iris.Context) {
 
 		type points struct {
-			Nodes         []model.Node
+			OffLineNode   []*model.Node
 			OnLineNodeMap map[uint]*mqtt.OnLineNode
 		}
 
 		p := &points{}
-		p.Nodes = model.GetNodes()
+		p.OffLineNode = mqtt.GetOffLineNode()
 		p.OnLineNodeMap = mqtt.OnLineNodeMap
 		log.Println(ctx.Render("admin.html", p))
 		/*      if ctx.Session().GetString("username") == "" { */
@@ -67,13 +80,20 @@ func serverSetup() {
 		ctx.MustRender("login.html", nil)
 	})
 
+	server.Get("logout", func(ctx *iris.Context) {
+		ctx.Session().Clear()
+		ctx.Redirect("/index")
+	})
+
 	server.Post("/login", func(ctx *iris.Context) {
 		username := ctx.FormValueString("username")
 		password := ctx.FormValueString("password")
 		if username == "changvvb" && password == "changvvb" {
 			log.Println("login success")
 			ctx.Session().Set("username", username)
-			ctx.Redirect("/viewnodes")
+			ctx.Redirect("/admin")
+		} else {
+			ctx.Render("login.html", struct{ LoginError bool }{true})
 		}
 	})
 
@@ -109,8 +129,7 @@ func serverSetup() {
 		}
 		node := model.GetNodeByID(uint(id))
 		node.GetData()
-		datas := node.Data
-		log.Println(ctx.Render("nodehistory.html", struct{ Datas []model.Data }{datas}))
+		log.Println(ctx.Render("nodehistory.html", node))
 	})
 
 	server.Get("/nodeseries/:id", func(ctx *iris.Context) {
@@ -149,6 +168,7 @@ func serverSetup() {
 		Min, err := strconv.ParseFloat(min, 10)
 		checkError(err)
 		X, err := strconv.ParseInt(x, 10, 64)
+		log.Println("X:", int(X))
 		checkError(err)
 		Y, err := strconv.ParseInt(y, 10, 64)
 		checkError(err)
@@ -167,6 +187,36 @@ func serverSetup() {
 		}
 		ctx.Redirect("/node/" + fmt.Sprint(ID))
 
+	})
+
+	server.Post("/nodeadd/", func(ctx *iris.Context) {
+		species := ctx.FormValueString("species")
+		max := ctx.FormValueString("max")
+		min := ctx.FormValueString("min")
+		describe := ctx.FormValueString("describe")
+		x := ctx.FormValueString("X")
+		y := ctx.FormValueString("Y")
+
+		Max, err := strconv.ParseFloat(max, 10)
+		checkError(err)
+		Min, err := strconv.ParseFloat(min, 10)
+		checkError(err)
+		X, err := strconv.ParseInt(x, 10, 64)
+		log.Println("X:", int(X))
+		checkError(err)
+		Y, err := strconv.ParseInt(y, 10, 64)
+		checkError(err)
+
+		node := model.Node{
+			Species:  species,
+			MaxValue: Max,
+			MinValue: Min,
+			Describe: describe,
+			X:        int(X),
+			Y:        int(Y),
+		}
+		model.AddNode(&node)
+		ctx.Redirect("/admin")
 	})
 
 	server.Post("/delete/:id", func(ctx *iris.Context) {
@@ -210,5 +260,5 @@ func serverRun() {
 }
 
 func mqttSetup() {
-	mqtt.Subscribe("haha", 0)
+	// mqtt.Subscribe("haha", 0)
 }

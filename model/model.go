@@ -82,7 +82,7 @@ func UpdateNode(n *Node, id uint) {
 		return
 	}
 	defer db.Close()
-	db.Model(n).Where("id=?", id).Update(n)
+	db.Model(n).Where("id=?", id).Update(n).Update("x", n.X).Update("y", n.Y).Update("min_value", n.MinValue).Update("max_value", n.MaxValue)
 }
 
 func DeleteNode(id uint) {
@@ -94,4 +94,14 @@ func DeleteNode(id uint) {
 	defer db.Close()
 	n := Node{}
 	db.Model(&n).Where("id=?", id).Delete(&n)
+}
+
+func AddNode(n *Node) {
+	db, err := opendb()
+	if err != nil {
+		printlnLog(err)
+		return
+	}
+	defer db.Close()
+	db.Create(n)
 }
