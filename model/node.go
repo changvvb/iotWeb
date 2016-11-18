@@ -7,15 +7,15 @@ import (
 )
 
 type Node struct {
-	gorm.Model
+	gorm.Model       `json:"-"`
 	Species          string `gorm:"type:varchar(100)"`
 	MaxValue         float64
 	MinValue         float64
 	Describe         string
 	X                int
 	Y                int
-	PositionDescribe string
-	Data             []Data `gorm:"ForeignKey:NodeRefer"`
+	PositionDescribe string `json:"-"`
+	Data             []Data `gorm:"ForeignKey:NodeRefer" json:"-"`
 }
 
 type Data struct {

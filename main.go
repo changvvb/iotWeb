@@ -37,7 +37,7 @@ func serverSetup() {
 
 	server.UseFunc(func(ctx *iris.Context) {
 		path := ctx.PathString()
-		if path != "/index" && path != "/logout" && path != "/login" && path != "/" {
+		if path != "/index" && path != "/logout" && path != "/login" && path != "/" && path != "/getallnodes" {
 			if ctx.Session().GetString("username") != "" {
 				ctx.Next()
 			} else {
@@ -60,20 +60,20 @@ func serverSetup() {
 	// server.Get("/node/:nodename")
 	server.Get("/admin", func(ctx *iris.Context) {
 
-		type points struct {
+		type nodes struct {
 			OffLineNode   []*model.Node
 			OnLineNodeMap map[uint]*mqtt.OnLineNode
 		}
 
-		p := &points{}
+		p := &nodes{}
 		p.OffLineNode = mqtt.GetOffLineNode()
 		p.OnLineNodeMap = mqtt.OnLineNodeMap
 		log.Println(ctx.Render("admin.html", p))
-		/*      if ctx.Session().GetString("username") == "" { */
-		//     ctx.Render("admin.html", nil)
-		// } else {
-		//     ctx.Redirect("/login")
-		/*    } */
+	})
+
+	server.Get("/getallnodes", func(ctx *iris.Context) {
+		nodes := model.GetNodes()
+		ctx.JSON(iris.StatusOK, nodes)
 	})
 
 	server.Get("/login", func(ctx *iris.Context) {
