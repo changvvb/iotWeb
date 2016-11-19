@@ -121,16 +121,20 @@ func init() {
 
 }
 
-func GetOffLineNode() []*model.Node {
-	nodes := model.GetNodes()
+//获得在线与离线节点
+func GetNodes(p *model.Park) ([]*model.Node, []*model.Node) {
+	nodes := p.GetNodes()
 	offlinenodes := make([]*model.Node, 0)
+	onlinenodes := make([]*model.Node, 0)
 	for key, n := range nodes {
-		//说明在线
+		//说明不在线
 		if OnLineNodeMap[n.ID] == nil {
 			offlinenodes = append(offlinenodes, &nodes[key])
+		} else {
+			onlinenodes = append(onlinenodes, &nodes[key])
 		}
 	}
-	return offlinenodes
+	return onlinenodes, offlinenodes
 }
 
 func NewOnLineNode(n *model.Node) *OnLineNode {

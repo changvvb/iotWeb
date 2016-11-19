@@ -16,6 +16,8 @@ type Node struct {
 	Y                int
 	PositionDescribe string `json:"-"`
 	Data             []Data `gorm:"ForeignKey:NodeRefer" json:"-"`
+	ParkRefer        uint
+	Number           int
 }
 
 type Data struct {

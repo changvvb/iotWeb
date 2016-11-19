@@ -34,41 +34,55 @@ func serverSetup() {
 	server.UseTemplate(html.New(html.Config{
 		Layout: "base.html",
 	})).Directory("template", ".html")
-
-	server.UseFunc(func(ctx *iris.Context) {
-		path := ctx.PathString()
-		if path != "/index" && path != "/logout" && path != "/login" && path != "/" && path != "/getallnodes" {
-			if ctx.Session().GetString("username") != "" {
-				ctx.Next()
-			} else {
-				ctx.Redirect("/login")
-			}
-			return
-		}
-		ctx.Next()
-	})
+	/*  server.UseFunc(func(ctx *iris.Context) { */
+	//     path := ctx.PathString()
+	//     if path != "/index" && path != "/logout" && path != "/login" && path != "/" && path != "/getallnodes" {
+	//         if ctx.Session().GetString("username") != "" {
+	//             ctx.Next()
+	//         } else {
+	//             ctx.Redirect("/login")
+	//         }
+	//         return
+	//     }
+	//     ctx.Next()
+	// })
 
 	server.Get("/", func(ctx *iris.Context) {
 		ctx.Redirect("/index")
 	})
 
+	//主页
 	server.Get("/index", func(ctx *iris.Context) {
 		// ctx.MustRender("base.html", nil)
 		ctx.Render("index.html", struct{ Index bool }{true})
 	})
 
-	// server.Get("/node/:nodename")
+	//管理员界面
 	server.Get("/admin", func(ctx *iris.Context) {
+		Park := model.GetParks()
+		for _, p := range Park {
+			log.Println(p.Name)
+		}
+		err := ctx.Render("admin.html", struct{ Park []model.Park }{model.GetParks()})
+		checkError(err)
+	})
 
-		type nodes struct {
+	//进入对应园区管理界面
+	server.Get("/park/:id", func(ctx *iris.Context) {
+		id, err := ctx.ParamInt("id")
+		checkError(err)
+
+		park := model.GetParkByID(uint(id))
+		type Park struct {
+			model.Park
 			OffLineNode   []*model.Node
-			OnLineNodeMap map[uint]*mqtt.OnLineNode
+			OnLineNodeMap []*model.Node
 		}
 
-		p := &nodes{}
-		p.OffLineNode = mqtt.GetOffLineNode()
-		p.OnLineNodeMap = mqtt.OnLineNodeMap
-		log.Println(ctx.Render("admin.html", p))
+		p := &Park{}
+		p.Park = *park
+		p.OnLineNodeMap, p.OffLineNode = mqtt.GetNodes(park)
+		log.Println(ctx.Render("park.html", p))
 	})
 
 	server.Get("/getallnodes", func(ctx *iris.Context) {
@@ -189,13 +203,15 @@ func serverSetup() {
 
 	})
 
-	server.Post("/nodeadd/", func(ctx *iris.Context) {
+	server.Post("/nodeadd/:parkid", func(ctx *iris.Context) {
 		species := ctx.FormValueString("species")
 		max := ctx.FormValueString("max")
 		min := ctx.FormValueString("min")
 		describe := ctx.FormValueString("describe")
 		x := ctx.FormValueString("X")
 		y := ctx.FormValueString("Y")
+		id, err := ctx.ParamInt("parkid")
+		checkError(err)
 
 		Max, err := strconv.ParseFloat(max, 10)
 		checkError(err)
@@ -208,14 +224,15 @@ func serverSetup() {
 		checkError(err)
 
 		node := model.Node{
-			Species:  species,
-			MaxValue: Max,
-			MinValue: Min,
-			Describe: describe,
-			X:        int(X),
-			Y:        int(Y),
+			Species:   species,
+			MaxValue:  Max,
+			MinValue:  Min,
+			Describe:  describe,
+			X:         int(X),
+			Y:         int(Y),
+			ParkRefer: uint(id),
 		}
-		model.AddNode(&node)
+		model.GetParkByID(uint(id)).AddNode(&node)
 		ctx.Redirect("/admin")
 	})
 
@@ -227,6 +244,17 @@ func serverSetup() {
 		}
 		log.Println("delete", id)
 		model.DeleteNode(uint(id))
+		ctx.Redirect("/admin")
+	})
+
+	server.Post("/deletepark/:id", func(ctx *iris.Context) {
+		id, err := ctx.ParamInt("id")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		log.Println("Delete park", id)
+		model.DeletePark(uint(id))
 		ctx.Redirect("/admin")
 	})
 }

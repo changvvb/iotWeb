@@ -22,8 +22,7 @@ func init() {
 	// datas := []Data{{Time: time.Now(), Data: 34}, {Time: time.Now(), Data: 56}}
 
 	// node := Node{Data: datas, Species: "my node", MaxValue: 100, MinValue: 0, Describe: "haha"}
-	db.AutoMigrate(&Node{}, &Data{})
-	//db.Create(&node)
+	db.AutoMigrate(&Node{}, &Data{}, &Park{})
 }
 
 func GetNodes() []Node {
@@ -96,6 +95,18 @@ func DeleteNode(id uint) {
 	db.Model(&n).Where("id=?", id).Delete(&n)
 }
 
+func DeletePark(id uint) {
+	db, err := opendb()
+	if err != nil {
+		printlnLog(err)
+		return
+	}
+	defer db.Close()
+	p := &Park{}
+	p.ID = id
+	db.Model(p).Delete(p)
+}
+
 func AddNode(n *Node) {
 	db, err := opendb()
 	if err != nil {
@@ -104,4 +115,28 @@ func AddNode(n *Node) {
 	}
 	defer db.Close()
 	db.Create(n)
+}
+
+func GetParks() []Park {
+	db, err := opendb()
+	if err != nil {
+		printlnLog(err)
+		return nil
+	}
+	defer db.Close()
+	var parks []Park
+	db.Find(&parks)
+	return parks
+}
+
+func GetParkByID(id uint) *Park {
+	db, err := opendb()
+	if err != nil {
+		printlnLog(err)
+		return nil
+	}
+	defer db.Close()
+	park := &Park{}
+	db.Where("id=?", id).Find(park)
+	return park
 }
