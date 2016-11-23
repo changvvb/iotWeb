@@ -269,6 +269,12 @@ func serverSetup() {
 
 		model.AddPark(p)
 	})
+
+	//给手机的
+	server.Get("/parklist", func(ctx *iris.Context) {
+		parks := model.GetParks()
+		ctx.JSON(iris.StatusOK, parks)
+	})
 }
 
 func checkError(err error) {
