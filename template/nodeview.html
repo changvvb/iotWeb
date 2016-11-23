@@ -12,7 +12,13 @@
                 <div class="form-group row">
                     <label for="species" class="col-xs-4 col-form-label">种类</label>
                     <div class="col-xs-8">
-                        <input class="form-control" type="text" value="" id="species" name="species" disabled>
+                        <input class="form-control" type="text" value="{{ .Danger.Species }}" id="species" name="species" disabled>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="species" class="col-xs-4 col-form-label">危险品</label>
+                    <div class="col-xs-8">
+                        <input class="form-control" type="text" value="{{ .Danger.Name }}" id="species" name="species" disabled>
                     </div>
                 </div>
                 <div class="form-group row">

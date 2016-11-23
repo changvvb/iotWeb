@@ -63,6 +63,7 @@ func GetNodeByID(ID uint) *Node {
 		log.Println("NotFound")
 		return nil
 	}
+	node.GetDanger()
 	return &node
 }
 

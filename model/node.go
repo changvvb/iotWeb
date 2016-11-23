@@ -55,3 +55,13 @@ func (n *Node) InsertData(v float64) {
 	defer db.Close()
 	db.Create(&Data{Time: time.Now(), Data: v, NodeRefer: n.ID})
 }
+
+func (n *Node) GetDanger() {
+	db, err := opendb()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer db.Close()
+	db.Where("id=?", n.DangerID).Find(&n.Danger)
+}

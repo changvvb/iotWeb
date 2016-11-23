@@ -65,7 +65,7 @@
                     <div class="form-group row">
                         <label for="species" class="col-md-offset-1 col-xs-3 col-form-label">危险源</label>
                         <div class="col-xs-6">
-                            <select class="selectpicker" name="danger[]">
+                            <select class="form-control" name="danger">
                             {{ range $key, $value := .Dangers }}
                             <optgroup label="{{ $key }}">
                                 {{ range $i, $v := $value }}

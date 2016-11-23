@@ -202,7 +202,8 @@ func serverSetup() {
 
 	server.Post("/nodeadd/:parkid", func(ctx *iris.Context) {
 		// danger := ctx.FormValueString("danger")
-		danger := ctx.FormValues("danger")
+		// danger := ctx.FormValues("danger")
+		danger := ctx.FormValueString("danger")
 		max := ctx.FormValueString("max")
 		min := ctx.FormValueString("min")
 		describe := ctx.FormValueString("describe")
@@ -231,7 +232,7 @@ func serverSetup() {
 			X:         int(X),
 			Y:         int(Y),
 			ParkRefer: uint(id),
-			// DangerID:  model.GetDangerIDByString(danger),
+			DangerID:  model.GetDangerIDByString(danger),
 		}
 		model.GetParkByID(uint(id)).AddNode(&node)
 		ctx.Redirect("/admin")
