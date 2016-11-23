@@ -22,7 +22,9 @@ func init() {
 	// datas := []Data{{Time: time.Now(), Data: 34}, {Time: time.Now(), Data: 56}}
 
 	// node := Node{Data: datas, Species: "my node", MaxValue: 100, MinValue: 0, Describe: "haha"}
-	db.AutoMigrate(&Node{}, &Data{}, &Park{})
+
+	db.CreateTable(&Node{})
+	db.AutoMigrate(&Node{}, &Data{}, &Park{}, &Chemical{})
 }
 
 func GetNodes() []Node {
@@ -139,4 +141,14 @@ func GetParkByID(id uint) *Park {
 	park := &Park{}
 	db.Where("id=?", id).Find(park)
 	return park
+}
+
+func AddPark(p *Park) {
+	db, err := opendb()
+	if err != nil {
+		printlnLog(err)
+		return
+	}
+	defer db.Close()
+	db.Create(p)
 }

@@ -168,7 +168,6 @@ func serverSetup() {
 		ctx.JSON(iris.StatusOK, r)
 	})
 	server.Post("nodemodify/:id", func(ctx *iris.Context) {
-		species := ctx.FormValueString("species")
 		max := ctx.FormValueString("max")
 		min := ctx.FormValueString("min")
 		describe := ctx.FormValueString("describe")
@@ -188,7 +187,7 @@ func serverSetup() {
 		checkError(err)
 
 		node := model.Node{
-			Species:  species,
+			// Species:  species,
 			MaxValue: Max,
 			MinValue: Min,
 			Describe: describe,
@@ -204,7 +203,6 @@ func serverSetup() {
 	})
 
 	server.Post("/nodeadd/:parkid", func(ctx *iris.Context) {
-		species := ctx.FormValueString("species")
 		max := ctx.FormValueString("max")
 		min := ctx.FormValueString("min")
 		describe := ctx.FormValueString("describe")
@@ -224,7 +222,7 @@ func serverSetup() {
 		checkError(err)
 
 		node := model.Node{
-			Species:   species,
+			// Species:   species,
 			MaxValue:  Max,
 			MinValue:  Min,
 			Describe:  describe,
@@ -256,6 +254,20 @@ func serverSetup() {
 		log.Println("Delete park", id)
 		model.DeletePark(uint(id))
 		ctx.Redirect("/admin")
+	})
+
+	server.Post("/addpark", func(ctx *iris.Context) {
+		name := ctx.FormValueString("name")
+		address := ctx.FormValueString("address")
+		tel := ctx.FormValueString("tel")
+
+		p := &model.Park{
+			Name:    name,
+			Address: address,
+			Tel:     tel,
+		}
+
+		model.AddPark(p)
 	})
 }
 

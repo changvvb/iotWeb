@@ -8,7 +8,7 @@ import (
 
 type Node struct {
 	gorm.Model       `json:"-"`
-	Species          string `gorm:"type:varchar(100)"`
+	Chemical         Chemical
 	MaxValue         float64
 	MinValue         float64
 	Describe         string
@@ -17,6 +17,7 @@ type Node struct {
 	PositionDescribe string `json:"-"`
 	Data             []Data `gorm:"ForeignKey:NodeRefer" json:"-"`
 	ParkRefer        uint
+	ChemicalID       uint
 	Number           int
 }
 
