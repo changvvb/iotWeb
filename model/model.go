@@ -173,4 +173,5 @@ func GetDangers() map[string][]string {
 }
 
 func GetDangerIDByString(string) uint {
+	return 0
 }
