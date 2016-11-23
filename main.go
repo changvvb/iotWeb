@@ -270,10 +270,18 @@ func serverSetup() {
 		model.AddPark(p)
 	})
 
-	//给手机的
+	//给手机的,返回所有园区列表
 	server.Get("/parklist", func(ctx *iris.Context) {
 		parks := model.GetParks()
 		ctx.JSON(iris.StatusOK, parks)
+	})
+	//给手机的,返回某个园区信息
+	server.Get("/parkinfo", func(ctx *iris.Context) {
+		idint, err := ctx.URLParamInt("id")
+		checkError(err)
+		id := uint(idint)
+		park := model.GetParkByID(id)
+		ctx.JSON(iris.StatusOK, park)
 	})
 }
 
