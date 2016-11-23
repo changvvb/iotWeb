@@ -7,7 +7,7 @@ import (
 type Park struct {
 	gorm.Model
 	Name    string
-	Nodes   []Node `gorm:"ForeignKey:ParkRefer" `
+	Nodes   []Node `gorm:"ForeignKey:ParkRefer"`
 	Tel     string
 	Address string
 }

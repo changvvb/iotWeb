@@ -284,6 +284,7 @@ func serverSetup() {
 		checkError(err)
 		id := uint(idint)
 		park := model.GetParkByID(id)
+		park.GetNodes()
 		ctx.JSON(iris.StatusOK, park)
 	})
 }
