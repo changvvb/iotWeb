@@ -127,7 +127,7 @@ func GetNodes(p *model.Park) ([]*model.Node, []*model.Node) {
 	offlinenodes := make([]*model.Node, 0)
 	onlinenodes := make([]*model.Node, 0)
 	for key, n := range p.Nodes {
-		log.Println("mqtt", n.Chemical.Name)
+		log.Println("mqtt", n.Danger.Name)
 		//说明不在线
 		if OnLineNodeMap[n.ID] == nil {
 			offlinenodes = append(offlinenodes, &nodes[key])

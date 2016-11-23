@@ -4,14 +4,14 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type Chemical struct {
+type Danger struct {
 	gorm.Model
 	Species       string
 	Name          string
 	CriticalValue string
 }
 
-func (c Chemical) String() string {
+func (c Danger) String() string {
 	return c.Name
 }
 

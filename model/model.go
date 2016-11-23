@@ -24,7 +24,7 @@ func init() {
 	// node := Node{Data: datas, Species: "my node", MaxValue: 100, MinValue: 0, Describe: "haha"}
 
 	db.CreateTable(&Node{})
-	db.AutoMigrate(&Node{}, &Data{}, &Park{}, &Chemical{})
+	db.AutoMigrate(&Node{}, &Data{}, &Park{}, &Danger{})
 }
 
 func GetNodes() []Node {
@@ -151,4 +151,26 @@ func AddPark(p *Park) {
 	}
 	defer db.Close()
 	db.Create(p)
+}
+
+func GetDangers() map[string][]string {
+
+	dangerMap := make(map[string][]string)
+	var d []Danger
+	db, err := opendb()
+	if err != nil {
+		printlnLog(err)
+	}
+	defer db.Close()
+
+	db.Find(&d)
+
+	for _, v := range d {
+		dangerMap[v.Species] = append(dangerMap[v.Species], v.Name)
+	}
+
+	return dangerMap
+}
+
+func GetDangerIDByString(string) uint {
 }

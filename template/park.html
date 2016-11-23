@@ -19,8 +19,8 @@
                     {{ range .OnLineNodeMap }}
                     <tr>
                         <td><a href="/node/{{.ID}}">{{.ID}}</a></td>
-                        <td>{{.Chemical.Species }}</td>
-                        <td>{{.Chemical.Name }}</td>
+                        <td>{{.Danger.Species }}</td>
+                        <td>{{.Danger.Name }}</td>
                         <td style="color:red;">在线</td>
                         <td>{{.X}}</td>
                         <td>{{.Y}}</td>
@@ -31,8 +31,8 @@
                     {{ range .OffLineNode }}
                     <tr>
                         <td><a href="/node/{{.ID}}">{{.ID}}</a></td>
-                        <td>{{.Chemical.Species }}</td>
-                        <td>{{.Chemical.Name }}</td>
+                        <td>{{.Danger.Species }}</td>
+                        <td>{{.Danger.Name }}</td>
                         <td>离线</td>
                         <td>{{.X}}</td>
                         <td>{{.Y}}</td>
@@ -60,45 +60,20 @@
                     </div>
                     <div class="modal-body">
                         <form class="form-group" action="/nodeadd/{{.ID}}" method="post">
-                            <div class="form-group row">
 
-                                <label for="species" class="col-md-offset-1 col-xs-3 col-form-label">危险化学品</label>
-
-                                <div class="input-group-btn">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">选择危险源 <span class="caret"></span></button>
-                                    <ul class="dropdown-menu">
-                                        <li class="dropdown-submenu">
-
-                                            <a tabindex="-1" href="#">Hover me for more options</a>
-                                            <ul class="dropdown-menu">
-                                                <div class="radio">
-                                                    <label>
-                                                        <li>
-                                                            <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1">
-                                                            001
-                                                        </li>
-                                                    </label>
-                                                </div>
-                                    
-                                                <li><a tabindex="-1" href="#">Second level</a></li>
-                                                <li class="dropdown-submenu">
-                                                    <a href="#">Even More..</a>
-                                                </li>
-                                                <li><a href="#">Second level</a></li>
-                                                <li><a href="#">Second level</a></li>
-                                            </ul>
-                                        </li>
-
-                                    </ul>
-                                </div>
-                                <!-- /btn-group -->
-                            </div>
-                            <!-- /input-group -->
                     </div>
                     <div class="form-group row">
-                        <label for="species" class="col-md-offset-1 col-xs-3 col-form-label">种类</label>
+                        <label for="species" class="col-md-offset-1 col-xs-3 col-form-label">危险源</label>
                         <div class="col-xs-6">
-                            <input class="form-control" type="text" id="species" name="species">
+                            <select class="selectpicker" name="danger">
+                            {{ range $key, $value := .Dangers }}
+                            <optgroup label="{{ $key }}">
+                                {{ range $i, $v := $value }}
+                                    <option>{{ $v }}</option>
+                                 {{ end }}
+                           </optgroup>
+                              {{ end }}
+                            </select>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -172,6 +147,13 @@
 
 
 <script>
+
+    $('.selectpicker').selectpicker({
+        style: 'btn-info',
+        size: 15
+    });
+
+
     function deletepark() {
         post('/deletepark/{{ .ID}}');
     }

@@ -7,7 +7,7 @@ import (
 type Park struct {
 	gorm.Model
 	Name    string
-	Nodes   []Node `gorm:"ForeignKey:ParkRefer" json:"-"`
+	Nodes   []Node `gorm:"ForeignKey:ParkRefer" `
 	Tel     string
 	Address string
 }
@@ -21,9 +21,9 @@ func (p *Park) GetNodes() []Node {
 	defer db.Close()
 	db.Where("park_refer=?", p.ID).Find(&p.Nodes)
 	for index, _ := range p.Nodes {
-		p.Nodes[index].ChemicalID = p.Nodes[index].ChemicalID
-		db.Where("id=?", p.Nodes[index].ChemicalID).Find(&p.Nodes[index].Chemical)
-		printlnLog(p.Nodes[index].ChemicalID)
+		p.Nodes[index].DangerID = p.Nodes[index].DangerID
+		db.Where("id=?", p.Nodes[index].DangerID).Find(&p.Nodes[index].Danger)
+		printlnLog(p.Nodes[index].DangerID)
 	}
 	return p.Nodes
 }

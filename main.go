@@ -77,11 +77,13 @@ func serverSetup() {
 			model.Park
 			OffLineNode   []*model.Node
 			OnLineNodeMap []*model.Node
+			Dangers       map[string][]string
 		}
 
 		p := &Park{}
 		p.Park = *park
 		p.OnLineNodeMap, p.OffLineNode = mqtt.GetNodes(park)
+		p.Dangers = model.GetDangers()
 		log.Println(ctx.Render("park.html", p))
 	})
 
@@ -203,6 +205,7 @@ func serverSetup() {
 	})
 
 	server.Post("/nodeadd/:parkid", func(ctx *iris.Context) {
+		species := ctx.FormValueString("danger")
 		max := ctx.FormValueString("max")
 		min := ctx.FormValueString("min")
 		describe := ctx.FormValueString("describe")

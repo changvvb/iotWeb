@@ -8,7 +8,7 @@ import (
 
 type Node struct {
 	gorm.Model       `json:"-"`
-	Chemical         Chemical
+	Danger           Danger
 	MaxValue         float64
 	MinValue         float64
 	Describe         string
@@ -17,7 +17,7 @@ type Node struct {
 	PositionDescribe string `json:"-"`
 	Data             []Data `gorm:"ForeignKey:NodeRefer" json:"-"`
 	ParkRefer        uint
-	ChemicalID       uint
+	DangerID         uint
 	Number           int
 }
 
