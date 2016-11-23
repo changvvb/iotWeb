@@ -160,6 +160,7 @@ func GetDangers() map[string][]string {
 	db, err := opendb()
 	if err != nil {
 		printlnLog(err)
+		return nil
 	}
 	defer db.Close()
 
@@ -172,6 +173,15 @@ func GetDangers() map[string][]string {
 	return dangerMap
 }
 
-func GetDangerIDByString(string) uint {
-	return 0
+func GetDangerIDByString(name string) uint {
+	db, err := opendb()
+	if err != nil {
+		printlnLog(err)
+		return 0
+	}
+	defer db.Close()
+
+	d := Danger{}
+	db.Where("name=?", name).Find(&d)
+	return d.ID
 }

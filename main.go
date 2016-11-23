@@ -59,10 +59,6 @@ func serverSetup() {
 
 	//管理员界面
 	server.Get("/admin", func(ctx *iris.Context) {
-		Park := model.GetParks()
-		for _, p := range Park {
-			log.Println(p.Name)
-		}
 		err := ctx.Render("admin.html", struct{ Park []model.Park }{model.GetParks()})
 		checkError(err)
 	})
@@ -205,7 +201,8 @@ func serverSetup() {
 	})
 
 	server.Post("/nodeadd/:parkid", func(ctx *iris.Context) {
-		species := ctx.FormValueString("danger")
+		// danger := ctx.FormValueString("danger")
+		danger := ctx.FormValues("danger")
 		max := ctx.FormValueString("max")
 		min := ctx.FormValueString("min")
 		describe := ctx.FormValueString("describe")
@@ -224,6 +221,8 @@ func serverSetup() {
 		Y, err := strconv.ParseInt(y, 10, 64)
 		checkError(err)
 
+		log.Println("----------------------->", danger)
+
 		node := model.Node{
 			// Species:   species,
 			MaxValue:  Max,
@@ -232,6 +231,7 @@ func serverSetup() {
 			X:         int(X),
 			Y:         int(Y),
 			ParkRefer: uint(id),
+			// DangerID:  model.GetDangerIDByString(danger),
 		}
 		model.GetParkByID(uint(id)).AddNode(&node)
 		ctx.Redirect("/admin")
