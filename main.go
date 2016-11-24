@@ -80,6 +80,7 @@ func serverSetup() {
 		log.Println(s, n)
 		d := model.Danger{Species: s, Name: n}
 		model.AddDanger(&d)
+		ctx.Redirect("/admin")
 	})
 
 	//进入对应园区管理界面
