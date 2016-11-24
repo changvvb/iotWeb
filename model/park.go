@@ -7,10 +7,10 @@ import (
 type Park struct {
 	gorm.Model
 	Name    string
-	Nodes   []Node `gorm:"ForeignKey:ParkRefer"`
 	Tel     string
 	Address string
-	Species []string
+	Species string
+	Nodes   []Node `gorm:"ForeignKey:ParkRefer"`
 }
 
 func (p *Park) GetNodes() []Node {
@@ -30,10 +30,10 @@ func (p *Park) GetNodes() []Node {
 	}
 
 	for index, _ := range s {
-		// p.Species += (" " + index)
-		if s[index] == true {
-			p.Species = append(p.Species, index)
-		}
+		p.Species += (" " + index)
+		// if s[index] == true {
+		//     p.Species = append(p.Species, index)
+		// }
 	}
 
 	return p.Nodes

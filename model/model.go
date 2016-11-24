@@ -87,15 +87,18 @@ func UpdateNode(n *Node, id uint) {
 	db.Model(n).Where("id=?", id).Update(n).Update("x", n.X).Update("y", n.Y).Update("min_value", n.MinValue).Update("max_value", n.MaxValue)
 }
 
-func DeleteNode(id uint) {
+//通过ID删除一个节点
+func DeleteNode(id uint) uint {
 	db, err := opendb()
 	if err != nil {
 		printlnLog(err)
-		return
+		return 0
 	}
 	defer db.Close()
 	n := Node{}
-	db.Model(&n).Where("id=?", id).Delete(&n)
+	db.Model(&n).Where("id=?", id).Find(&n)
+	db.Delete(&n)
+	return n.ParkRefer
 }
 
 func DeletePark(id uint) {
@@ -185,4 +188,40 @@ func GetDangerIDByString(name string) uint {
 	d := Danger{}
 	db.Where("name=?", name).Find(&d)
 	return d.ID
+}
+
+//向数据库添加危险源种类
+func AddDanger(d *Danger) {
+	db, err := opendb()
+	if err != nil {
+		printlnLog(err)
+		return
+	}
+	defer db.Close()
+
+	db.Create(d)
+}
+
+//获得危险物种类列表
+func GetDangerSpeciesList() []string {
+	db, err := opendb()
+	if err != nil {
+		printlnLog(err)
+		return nil
+	}
+	defer db.Close()
+	var d []Danger
+	m := make(map[string]bool)
+	l := make([]string, 0)
+
+	db.Find(&d)
+	for _, v := range d {
+		m[v.Species] = true
+	}
+	for k, v := range m {
+		if v {
+			l = append(l, k)
+		}
+	}
+	return l
 }

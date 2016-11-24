@@ -59,12 +59,8 @@ func serverSetup() {
 
 	//管理员界面
 	server.Get("/admin", func(ctx *iris.Context) {
-		ps := model.GetParks()
-		for i, _ := range ps {
-			ps[i].GetNodes()
-		}
-		// err := ctx.Render("admin.html", struct{ Parks []model.Park }{ps})
-		err := ctx.Render("admin.html", nil)
+		l := struct{ List []string }{model.GetDangerSpeciesList()}
+		err := ctx.Render("admin.html", l)
 		checkError(err)
 	})
 
@@ -75,6 +71,15 @@ func serverSetup() {
 			ps[i].GetNodes()
 		}
 		ctx.JSON(iris.StatusOK, ps)
+	})
+
+	//添加危险源
+	server.Post("/adddanger", func(ctx *iris.Context) {
+		s := ctx.FormValueString("species")
+		n := ctx.FormValueString("name")
+		log.Println(s, n)
+		d := model.Danger{Species: s, Name: n}
+		model.AddDanger(&d)
 	})
 
 	//进入对应园区管理界面
@@ -97,11 +102,13 @@ func serverSetup() {
 		log.Println(ctx.Render("park.html", p))
 	})
 
+	//获得所有节点
 	server.Get("/getallnodes", func(ctx *iris.Context) {
 		nodes := model.GetNodes()
 		ctx.JSON(iris.StatusOK, nodes)
 	})
 
+	//登陆
 	server.Get("/login", func(ctx *iris.Context) {
 		ctx.MustRender("login.html", nil)
 	})
@@ -214,6 +221,7 @@ func serverSetup() {
 
 	})
 
+	//增加一个节点
 	server.Post("/nodeadd/:parkid", func(ctx *iris.Context) {
 		// danger := ctx.FormValueString("danger")
 		// danger := ctx.FormValues("danger")
@@ -236,10 +244,7 @@ func serverSetup() {
 		Y, err := strconv.ParseInt(y, 10, 64)
 		checkError(err)
 
-		log.Println("----------------------->", danger)
-
 		node := model.Node{
-			// Species:   species,
 			MaxValue:  Max,
 			MinValue:  Min,
 			Describe:  describe,
@@ -249,9 +254,10 @@ func serverSetup() {
 			DangerID:  model.GetDangerIDByString(danger),
 		}
 		model.GetParkByID(uint(id)).AddNode(&node)
-		ctx.Redirect("/admin")
+		ctx.Redirect(fmt.Sprintf("/park/%d", id))
 	})
 
+	//删除一个节点
 	server.Post("/delete/:id", func(ctx *iris.Context) {
 		id, err := ctx.ParamInt("id")
 		if err != nil {
@@ -259,8 +265,8 @@ func serverSetup() {
 			return
 		}
 		log.Println("delete", id)
-		model.DeleteNode(uint(id))
-		ctx.Redirect("/admin")
+		pid := model.DeleteNode(uint(id))
+		ctx.Redirect(fmt.Sprintf("/park/%d", pid))
 	})
 
 	server.Post("/deletepark/:id", func(ctx *iris.Context) {
