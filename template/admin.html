@@ -5,70 +5,28 @@
 <table id="table"
        data-toggle="table"
        data-height="460"
-       data-sort-name="name"
+       data-url="/adminjson"
+       data-pagination="true"
+       data-detail-view="true"
+       data-detail-formatter="detailFormatter"
+       data-sort-name="ID"
 >
     <thead>
         <tr>
-            <th data-field="id" data-sortable="true">ID</th>
-            <th data-field="name" data-sortable="true">园区</th>
-            <th data-field="address" data-sortable="true">地址</th>
-            <th>电话</th>
-            <th data-sortable="true">危险物各类</th>
+            <th data-field="ID" data-sortable="true">ID</th>
+            <th data-field="Name" data-sortable="true">园区</th>
+            <th data-field="Address" data-sortable="true">地址</th>
+            <th data-field="Tel">电话</th>
+            <th data-field="Species" data-sortable="true">危险物各类</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
 
-        {{ range .Parks }}
-        <tr>
-
-          <td>{{ .ID }}</td>
-           <td>{{ .Name }}</td>
-          <td>{{ .Address }}</td>
-          <td>{{ .Tel }}</td>
-           <td>{{ .Species }}</td>
-          <td><p><a class="btn btn-primary" href="/park/{{ .ID }}" role="button">查看详情 »</a></p></td>
-      </tr>
-
-       {{ end }}
-
-
-        <tr>
-            <th scope="row">1</th>
-            <td>Abby</td>
-            <td>Barrett</td>
-            <td>@abbeme</td>
-            <td>
-                <a class="blue-text"><i class="fa fa-user"></i></a>
-                <a class="teal-text"><i class="fa fa-pencil"></i></a>
-                <a class="red-text"><i class="fa fa-times"></i></a>
-            </td>
-        </tr>
-        <tr>
-            <th scope="row">2</th>
-            <td>Danny</td>
-            <td>Collins</td>
-            <td>@dennis</td>
-            <td>
-                <a class="blue-text"><i class="fa fa-user"></i></a>
-                <a class="teal-text"><i class="fa fa-pencil"></i></a>
-                <a class="red-text"><i class="fa fa-times"></i></a>
-            </td>
-        </tr>
-        <tr>
-            <th scope="row">3</th>
-            <td>Clara</td>
-            <td>Ericson</td>
-            <td>@claris</td>
-            <td>
-               <a class="blue-text"><i class="fa fa-user"></i></a>
-                <a class="teal-text"><i class="fa fa-pencil"></i></a>
-                <a class="red-text"><i class="fa fa-times"></i></a>
-            </td>
-        </tr>
 
     </tbody>
 </table>
+
 
 
 <!-- Modal -->
@@ -114,3 +72,86 @@
   </div>
 </div>
 </div>
+
+
+<script>
+
+    $(function() {
+     var options = {
+         filterValues: {
+             price: "$2"
+         },
+         url: "../json/data1.json",
+         columns: [{
+             field: "ID",
+             title: "ID",
+             filter: {
+                 type: "input"
+             }
+         }, {
+             field: "name",
+             title: "Item Name",
+             filter: {
+                 type: "select",
+                 data: []
+             }
+         }, {
+             field: "price",
+             title: "Item Price",
+             filter: {
+                 type: "select",
+                 data: ["$1", "$2", "$3"]
+             }
+         }],
+         filter: true
+     };
+
+ var $table = $("#table").bootstrapTable(options);
+ $table.bootstrapTable("setFilterData", "name", ["item 1", "item 2", "item 3"]);
+});
+
+    function detailFormatter(index, row) {
+        var html = [];
+        $.each(row, function (key, value) {
+            if(key != "Nodes")
+                html.push('<p><b>' + key + ':</b> ' + value + '</p>');
+        });
+        return html.join('');
+    }
+</script>
+
+<!-- <script>
+       $(function() {
+           var options = {
+               filterValues: {
+                   price: "$2"
+               },
+               url: "../json/data1.json",
+               columns: [{
+                   field: "id",
+                   title: "ID",
+                   filter: {
+                       type: "input"
+                   }
+               }, {
+                   field: "name",
+                   title: "Item Name",
+                   filter: {
+                       type: "select",
+                       data: []
+                   }
+               }, {
+                   field: "price",
+                   title: "Item Price",
+                   filter: {
+                       type: "select",
+                       data: ["$1", "$2", "$3"]
+                   }
+               }],
+               filter: true
+           };
+
+           var $table = $("#table").bootstrapTable(options);
+           $table.bootstrapTable("setFilterData", "name", ["item 1", "item 2", "item 3"]);
+       });
+   </script> -->

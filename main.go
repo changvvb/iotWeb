@@ -63,8 +63,18 @@ func serverSetup() {
 		for i, _ := range ps {
 			ps[i].GetNodes()
 		}
-		err := ctx.Render("admin.html", struct{ Parks []model.Park }{ps})
+		// err := ctx.Render("admin.html", struct{ Parks []model.Park }{ps})
+		err := ctx.Render("admin.html", nil)
 		checkError(err)
+	})
+
+	//管理员界面的json数据
+	server.Get("/adminjson", func(ctx *iris.Context) {
+		ps := model.GetParks()
+		for i, _ := range ps {
+			ps[i].GetNodes()
+		}
+		ctx.JSON(iris.StatusOK, ps)
 	})
 
 	//进入对应园区管理界面

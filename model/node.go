@@ -7,7 +7,7 @@ import (
 )
 
 type Node struct {
-	gorm.Model       `json:"-"`
+	gorm.Model
 	Danger           Danger
 	MaxValue         float64
 	MinValue         float64
