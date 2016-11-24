@@ -28,7 +28,7 @@ func serverNew() *iris.Framework {
 
 func serverSetup() {
 	server.Config.IsDevelopment = true
-
+	server.Config.Charset = "UTF-8"
 	server.StaticServe("static", "/static")
 	server.Static("/js", "./static/js", 1)
 	server.UseTemplate(html.New(html.Config{
@@ -59,7 +59,11 @@ func serverSetup() {
 
 	//管理员界面
 	server.Get("/admin", func(ctx *iris.Context) {
-		err := ctx.Render("admin.html", struct{ Park []model.Park }{model.GetParks()})
+		ps := model.GetParks()
+		for i, _ := range ps {
+			ps[i].GetNodes()
+		}
+		err := ctx.Render("admin.html", struct{ Parks []model.Park }{ps})
 		checkError(err)
 	})
 
@@ -287,6 +291,14 @@ func serverSetup() {
 		park := model.GetParkByID(id)
 		park.GetNodes()
 		ctx.JSON(iris.StatusOK, park)
+	})
+	server.Get("/parknodes", func(ctx *iris.Context) {
+		idint, err := ctx.URLParamInt("id")
+		checkError(err)
+		id := uint(idint)
+		park := model.GetParkByID(id)
+		park.GetNodes()
+		ctx.JSON(iris.StatusOK, park.Nodes)
 	})
 }
 

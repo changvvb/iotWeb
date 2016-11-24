@@ -1,28 +1,75 @@
-<div class="container">
-    <h1>管理员界面</h1>
-    <div class="row">
-        {{ range .Park }}
-        <div class="col-lg-3">
-        <div style="height:40px;">
-          <h4>{{ .Name }}</h4>
-        </div>
-          <address>
-              地址：{{ .Address }} <br>
-              <abbr title="电话">电话：</abbr>{{ .Tel }}
-          </address>
-          <p><a class="btn btn-primary" href="/park/{{ .ID }}" role="button">查看详情 »</a></p>
-       </div>
+<div class="container" style="margin-top:30px;">
+    <h1>管理员 </h1>
+
+<div class="bootstrap-table">>
+<table id="table"
+       data-toggle="table"
+       data-height="460"
+       data-sort-name="name"
+>
+    <thead>
+        <tr>
+            <th data-field="id" data-sortable="true">ID</th>
+            <th data-field="name" data-sortable="true">园区</th>
+            <th data-field="address" data-sortable="true">地址</th>
+            <th>电话</th>
+            <th data-sortable="true">危险物各类</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        {{ range .Parks }}
+        <tr>
+
+          <td>{{ .ID }}</td>
+           <td>{{ .Name }}</td>
+          <td>{{ .Address }}</td>
+          <td>{{ .Tel }}</td>
+           <td>{{ .Species }}</td>
+          <td><p><a class="btn btn-primary" href="/park/{{ .ID }}" role="button">查看详情 »</a></p></td>
+      </tr>
+
        {{ end }}
-        <div class="col-lg-4">
-         <h2>添加一个</h2>
-         <address>
 
-         </address>
-         <p><a class="btn btn-success"  role="button" data-toggle="modal" data-target="#myModal">+</a></p>
 
-       </div>
-      </div>
-</div>
+        <tr>
+            <th scope="row">1</th>
+            <td>Abby</td>
+            <td>Barrett</td>
+            <td>@abbeme</td>
+            <td>
+                <a class="blue-text"><i class="fa fa-user"></i></a>
+                <a class="teal-text"><i class="fa fa-pencil"></i></a>
+                <a class="red-text"><i class="fa fa-times"></i></a>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">2</th>
+            <td>Danny</td>
+            <td>Collins</td>
+            <td>@dennis</td>
+            <td>
+                <a class="blue-text"><i class="fa fa-user"></i></a>
+                <a class="teal-text"><i class="fa fa-pencil"></i></a>
+                <a class="red-text"><i class="fa fa-times"></i></a>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">3</th>
+            <td>Clara</td>
+            <td>Ericson</td>
+            <td>@claris</td>
+            <td>
+               <a class="blue-text"><i class="fa fa-user"></i></a>
+                <a class="teal-text"><i class="fa fa-pencil"></i></a>
+                <a class="red-text"><i class="fa fa-times"></i></a>
+            </td>
+        </tr>
+
+    </tbody>
+</table>
+
 
 <!-- Modal -->
 <div class="modal fade" id="myModal" role="dialog">

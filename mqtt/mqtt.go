@@ -82,17 +82,17 @@ func init() {
 	opts.SetClientID("server")
 	opts.SetDefaultPublishHandler(messageHandler)
 
-	go func() {
-
-		client = MQTT.NewClient(opts)
-
-		if token := client.Connect(); token.Wait() && token.Error() != nil {
-			panic(token.Error())
-			return
-		}
-
-		Subscribe("message", 0)
-	}()
+	// go func() {
+	//
+	//     client = MQTT.NewClient(opts)
+	//
+	//     if token := client.Connect(); token.Wait() && token.Error() != nil {
+	//         panic(token.Error())
+	//         return
+	//     }
+	//
+	//     Subscribe("message", 0)
+	// }()
 
 	/*  if token := client.Subscribe("message", 0, nil); token.Wait() && token.Error() != nil { */
 	//     log.Println(token.Error())
@@ -127,7 +127,6 @@ func GetNodes(p *model.Park) ([]*model.Node, []*model.Node) {
 	offlinenodes := make([]*model.Node, 0)
 	onlinenodes := make([]*model.Node, 0)
 	for key, n := range p.Nodes {
-		log.Println("mqtt", n.Danger.Name)
 		//说明不在线
 		if OnLineNodeMap[n.ID] == nil {
 			offlinenodes = append(offlinenodes, &nodes[key])

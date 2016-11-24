@@ -23,8 +23,8 @@ func init() {
 
 	// node := Node{Data: datas, Species: "my node", MaxValue: 100, MinValue: 0, Describe: "haha"}
 
-	db.CreateTable(&Node{})
-	db.AutoMigrate(&Node{}, &Data{}, &Park{}, &Danger{})
+	// db.CreateTable(&Node{})
+	// db.AutoMigrate(&Node{}, &Data{}, &Park{}, &Danger{})
 }
 
 func GetNodes() []Node {
