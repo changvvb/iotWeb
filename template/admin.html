@@ -32,12 +32,32 @@
       </div>
       <div class="modal-body">
           <form class="form-group" action="/adddanger" method="post">
+
+
+
               <div class="form-group row">
-                  <label for="species" class="col-md-offset-1 col-xs-3 col-form-label">种类</label>
+                  <label for="max" class="col-md-offset-1 col-xs-3 col-form-label">种类</label>
                   <div class="col-xs-6">
+                  <select class="col-xs-6 form-control" name="danger">
+                  {{ range .List }}
+                  <option>{{.}}</option>
+                    {{ end }}
+                    <option>其他</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                  <label id="newlable" style="display:none;" for="species" class="col-md-offset-1 col-xs-3 col-form-label">请添加新种类
+                  </label>
+                  <div id="newinput" style="display:none;" class="col-xs-6">
                       <input class="form-control" type="text"  id="species" name="species" >
                   </div>
               </div>
+              <!-- <label id="new" style="display:none;">请输入新种类
+                  <input></input>
+              </label> -->
+
               <div class="form-group row">
                   <label for="max" class="col-md-offset-1 col-xs-3 col-form-label">名称</label>
                   <div class="col-xs-6">
@@ -101,6 +121,19 @@
   </div>
 </div>
 </div>
+<script>
+$(function(){$('select').change(function(){
+               if($('select option:selected').text() == "其他"){
+                   $('#newlable').show();
+                    $('#newinput').show();
+               }
+               else{
+                   $('#newlable').hide();
+                   $('#newinput').hide();
+               }
+   })
+})
+</script>
 <script>
 $(function() {
        var options = {

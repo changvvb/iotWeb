@@ -34,18 +34,18 @@ func serverSetup() {
 	server.UseTemplate(html.New(html.Config{
 		Layout: "base.html",
 	})).Directory("template", ".html")
-	/*  server.UseFunc(func(ctx *iris.Context) { */
-	//     path := ctx.PathString()
-	//     if path != "/index" && path != "/logout" && path != "/login" && path != "/" && path != "/getallnodes" {
-	//         if ctx.Session().GetString("username") != "" {
-	//             ctx.Next()
-	//         } else {
-	//             ctx.Redirect("/login")
-	//         }
-	//         return
-	//     }
-	//     ctx.Next()
-	// })
+	server.UseFunc(func(ctx *iris.Context) {
+		path := ctx.PathString()
+		if path != "/index" && path != "/logout" && path != "/login" && path != "/" && path != "/getallnodes" {
+			if ctx.Session().GetString("username") != "" {
+				ctx.Next()
+			} else {
+				ctx.Redirect("/login")
+			}
+			return
+		}
+		ctx.Next()
+	})
 
 	server.Get("/", func(ctx *iris.Context) {
 		ctx.Redirect("/index")
@@ -146,16 +146,26 @@ func serverSetup() {
 			log.Println(err)
 			return
 		}
-		log.Println(id)
-		node := model.GetNodeByID(uint(id))
-		if node == nil {
+		type Node struct {
+			model.Node
+			ParkName string
+			Dangers  map[string][]string
+		}
+		node := Node{}
+		n := model.GetNodeByID(uint(id))
+		if n == nil {
 			log.Println("not found")
 			ctx.RenderWithStatus(iris.StatusNotFound, "404.html", nil)
 			return
 		}
+		node.Node = *n
+		node.ParkName = model.GetParkByID(node.ParkRefer).Name
+		node.Dangers = model.GetDangers()
+
 		log.Println(ctx.Render("nodeview.html", node))
 	})
 
+	//节点历史界面
 	server.Get("/nodehistory/:id", func(ctx *iris.Context) {
 		id, err := ctx.ParamInt("id")
 		if err != nil {
@@ -164,6 +174,17 @@ func serverSetup() {
 		node := model.GetNodeByID(uint(id))
 		node.GetData()
 		log.Println(ctx.Render("nodehistory.html", node))
+	})
+
+	//节点历史json数据
+	server.Get("/nodehistoryjson/:id", func(ctx *iris.Context) {
+		id, err := ctx.ParamInt("id")
+		if err != nil {
+			return
+		}
+		node := model.GetNodeByID(uint(id))
+		node.GetData()
+		ctx.JSON(iris.StatusOK, node.Data)
 	})
 
 	server.Get("/nodeseries/:id", func(ctx *iris.Context) {
@@ -187,7 +208,10 @@ func serverSetup() {
 		r[1] = mqtt.OnLineNodeMap[id].FreshData.Data
 		ctx.JSON(iris.StatusOK, r)
 	})
+
+	//修改节点
 	server.Post("nodemodify/:id", func(ctx *iris.Context) {
+		danger := ctx.FormValueString("danger")
 		max := ctx.FormValueString("max")
 		min := ctx.FormValueString("min")
 		describe := ctx.FormValueString("describe")
@@ -213,6 +237,7 @@ func serverSetup() {
 			Describe: describe,
 			X:        int(X),
 			Y:        int(Y),
+			DangerID: model.GetDangerIDByString(danger),
 		}
 		model.UpdateNode(&node, uint(ID))
 		if n := mqtt.OnLineNodeMap[uint(ID)]; n != nil {

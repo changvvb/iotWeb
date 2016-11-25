@@ -1,20 +1,35 @@
 <div class="container">
   <h2>节点{{ .ID}}</h2>
   <p>这些都是历史数据</p>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>时间</th>
-        <th>数据</th>
-      </tr>
-    </thead>
-    <tbody>
-        {{ range .Data }}
-      <tr>
-        <td>{{ .Time }}</td>
-        <td>{{ .Data}}</td>
-        {{ end }}
-      </tr>
-    </tbody>
-  </table>
+
+
+  <table id="table"
+               data-toggle="table"
+               data-height="460"
+               data-sort-name="Time"
+               data-url="/nodehistoryjson/{{.ID}}">
+            <thead>
+            <tr>
+                <th data-sortable="true" data-field="Time" data-date-format="yyyymmdd" >时间</th>
+                <th data-field="Data">数据</th>
+            </tr>
+            </thead>
+    </table>
+
 </div>
+
+<script>
+
+    function dataFormatter(value, row) {
+
+    }
+
+    function priceFormatter(value) {
+        // 16777215 == ffffff in decimal
+        var color = '#'+Math.floor(Math.random() * 6777215).toString(16);
+        return '<div  style="color: ' + color + '">' +
+                '<i class="glyphicon glyphicon-usd"></i>' +
+                value.substring(1) +
+                '</div>';
+    }
+</script>

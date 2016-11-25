@@ -66,7 +66,7 @@ func messageHandler(client MQTT.Client, msg MQTT.Message) {
 				return
 			}
 		}
-		// OnLineNodeMap[m.ID].InsertData(m.Data)
+		OnLineNodeMap[m.ID].InsertData(m.Data)
 		OnLineNodeMap[m.ID].FreshData.Updata(m.Data)
 		log.Println(m.ID, m.Data)
 	case "":
@@ -81,23 +81,6 @@ func init() {
 	opts := MQTT.NewClientOptions().AddBroker("tcp://115.29.55.106:1883")
 	opts.SetClientID("server")
 	opts.SetDefaultPublishHandler(messageHandler)
-
-	// go func() {
-	//
-	//     client = MQTT.NewClient(opts)
-	//
-	//     if token := client.Connect(); token.Wait() && token.Error() != nil {
-	//         panic(token.Error())
-	//         return
-	//     }
-	//
-	//     Subscribe("message", 0)
-	// }()
-
-	/*  if token := client.Subscribe("message", 0, nil); token.Wait() && token.Error() != nil { */
-	//     log.Println(token.Error())
-	//     return
-	// }
 
 	go func() {
 		for {
