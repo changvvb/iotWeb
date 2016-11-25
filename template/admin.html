@@ -36,13 +36,13 @@
 
 
               <div class="form-group row">
-                  <label for="max" class="col-md-offset-1 col-xs-3 col-form-label">种类</label>
+                  <label for="max"  class="col-md-offset-1 col-xs-3 col-form-label">种类</label>
                   <div class="col-xs-6">
-                  <select class="col-xs-6 form-control" name="danger">
+                  <select class="col-xs-6 form-control" name="species">
                   {{ range .List }}
                   <option>{{.}}</option>
                     {{ end }}
-                    <option>其他</option>
+                    <option value="other">其他</option>
                   </select>
                 </div>
               </div>
@@ -51,7 +51,7 @@
                   <label id="newlable" style="display:none;" for="species" class="col-md-offset-1 col-xs-3 col-form-label">请添加新种类
                   </label>
                   <div id="newinput" style="display:none;" class="col-xs-6">
-                      <input class="form-control" type="text"  id="species" name="species" >
+                      <input class="form-control" type="text"  id="species" name="otherspecies" >
                   </div>
               </div>
               <!-- <label id="new" style="display:none;">请输入新种类

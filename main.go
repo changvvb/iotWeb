@@ -17,7 +17,6 @@ var server *iris.Framework
 func main() {
 	server = serverNew()
 	serverSetup()
-	websocketsSetup()
 	mqttSetup()
 	serverRun()
 }
@@ -36,13 +35,16 @@ func serverSetup() {
 	})).Directory("template", ".html")
 	server.UseFunc(func(ctx *iris.Context) {
 		path := ctx.PathString()
-		if path != "/index" && path != "/logout" && path != "/login" && path != "/" && path != "/getallnodes" {
+		log.Println("request path:", path)
+		if path != "/index" && path != "/logout" && path != "/login" && path != "/" && path != "/getallnodes" && path != "/parkinfo" && path != "/parklist" && path != "/parknodes" {
 			if ctx.Session().GetString("username") != "" {
 				ctx.Next()
 			} else {
 				ctx.Redirect("/login")
 			}
 			return
+		} else if 1 == 1 {
+
 		}
 		ctx.Next()
 	})
@@ -77,6 +79,9 @@ func serverSetup() {
 	server.Post("/adddanger", func(ctx *iris.Context) {
 		s := ctx.FormValueString("species")
 		n := ctx.FormValueString("name")
+		if s == "other" {
+			s = ctx.FormValueString("otherspecies")
+		}
 		log.Println(s, n)
 		d := model.Danger{Species: s, Name: n}
 		model.AddDanger(&d)
@@ -334,6 +339,7 @@ func serverSetup() {
 		park.GetNodes()
 		ctx.JSON(iris.StatusOK, park)
 	})
+	//给手机的返回节点信息
 	server.Get("/parknodes", func(ctx *iris.Context) {
 		idint, err := ctx.URLParamInt("id")
 		checkError(err)
@@ -349,23 +355,6 @@ func checkError(err error) {
 		log.Println(err)
 		//	panic(err)
 	}
-}
-
-var messageRoom = "001"
-
-func websocketsSetup() {
-
-	server.Config.Websocket.Endpoint = "/endpoint"
-	server.Websocket.OnConnection(func(c iris.WebsocketConnection) {
-		c.Join(messageRoom)
-		c.On("chat", func(message string) {
-			c.To(messageRoom).Emit("chat", "From: "+c.ID()+": "+message)
-			log.Println(message)
-		})
-		c.OnDisconnect(func() {
-			log.Printf("\nConnection with ID: %s	has	beendiscon	nected!", c.ID())
-		})
-	})
 }
 
 func serverRun() {

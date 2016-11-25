@@ -269,12 +269,25 @@ $(function(){
                 title: {
                     text: 'Value',
                     margin: 80
+                },
+                plotLines: [{
+                    color: 'red', // Color value
+                    dashStyle: 'longdashdot', // Style of the plot line. Default to solid
+                    value: {{.MaxValue}}, // Value of where the line will appear
+                    width: 3 // Width of the line
+                },
+                {
+                    color: 'red', // Color value
+                    dashStyle: 'longdashdot', // Style of the plot line. Default to solid
+                    value: {{.MinValue}}, // Value of where the line will appear
+                    width: 2 // Width of the line
                 }
+                ]
             },
             series: [{
                 name: '{{ .Danger.Name }}',
                 data: []
-            }]
+            }],
         });
     });
 
