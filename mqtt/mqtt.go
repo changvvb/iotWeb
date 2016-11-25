@@ -83,17 +83,19 @@ func init() {
 	opts.SetDefaultPublishHandler(messageHandler)
 
 	client = MQTT.NewClient(opts)
-	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		panic(token.Error())
-		return
+	go func() {
+		if token := client.Connect(); token.Wait() && token.Error() != nil {
+			panic(token.Error())
+			return
 
-	}
+		}
 
-	if token := client.Subscribe("message", 0, nil); token.Wait() && token.Error() != nil {
-		log.Println(token.Error())
-		return
+		if token := client.Subscribe("message", 0, nil); token.Wait() && token.Error() != nil {
+			log.Println(token.Error())
+			return
 
-	}
+		}
+	}()
 
 	go func() {
 		for {
