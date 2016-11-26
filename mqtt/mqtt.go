@@ -103,20 +103,20 @@ func init() {
 		}
 	}()
 
-	go func() {
-		var id uint
-		id = 5
-		if n := model.GetNodeByID(id); n != nil {
-			OnLineNodeMap[id] = NewOnLineNode(n)
-		} else {
-			return
-		}
-		for {
-			OnLineNodeMap[id].FreshData.Updata((float64(rand.Intn(100))))
-			time.Sleep(time.Second * 1)
-		}
-	}()
-
+	for i := 0; i < 100; i++ {
+		go test(uint(i))
+	}
+}
+func test(id uint) {
+	if n := model.GetNodeByID(id); n != nil {
+		OnLineNodeMap[id] = NewOnLineNode(n)
+	} else {
+		return
+	}
+	for {
+		OnLineNodeMap[id].FreshData.Updata((10 + float64(rand.Float64())))
+		time.Sleep(time.Second * 1)
+	}
 }
 
 //获得在线与离线节点
