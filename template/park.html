@@ -266,7 +266,7 @@
                         click: function(event) {
                             // Log to console
                             console.log(event.point);
-                            window.location = "/nodexy/" + event.point.x + "/" + event.point.y;
+                            window.location = "/nodexy/" + event.point.x + "/" + event.point.y+"/{{.ID}}";
                         }
                     }
                 }

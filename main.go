@@ -136,11 +136,13 @@ func serverSetup() {
 		}
 	})
 
-	server.Get("/nodexy/:x/:y", func(ctx *iris.Context) {
+	server.Get("/nodexy/:x/:y/:park", func(ctx *iris.Context) {
 		x, _ := ctx.ParamInt("x")
 		y, _ := ctx.ParamInt("y")
+		park, _ := ctx.ParamInt("park")
 		log.Println(x, y)
-		id := model.GetIdByPosition(x, y)
+		park = park
+		id := model.GetIdByPosition(x, y, uint(park))
 		// ctx.DirectTo("/node/" + fmt.Sprint(id))
 		ctx.Redirect("/node/" + fmt.Sprint(id))
 	})

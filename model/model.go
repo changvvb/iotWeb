@@ -40,14 +40,14 @@ func GetNodes() []Node {
 	return nodes
 }
 
-func GetIdByPosition(x int, y int) uint {
+func GetIdByPosition(x int, y int, parkid uint) uint {
 	db, err := opendb()
 	if err != nil {
 		printlnLog(err)
 	}
 	defer db.Close()
 	node := Node{}
-	db.Where("x=? AND y=?", x, y).First(&node)
+	db.Where("x=? AND y=? AND park_refer=?", x, y, parkid).First(&node)
 	return node.ID
 }
 
