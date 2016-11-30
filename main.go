@@ -350,6 +350,17 @@ func serverSetup() {
 		park.GetNodes()
 		ctx.JSON(iris.StatusOK, park.Nodes)
 	})
+	//给手机的验证密码
+	server.Post("/auth", func(ctx *iris.Context) {
+		name := ctx.URLParam("username")
+		pass := ctx.URLParam("password")
+		log.Println("/auth", name, pass)
+		if name == "123456" && pass == "123456" {
+			ctx.JSON(iris.StatusOK, nil)
+		} else {
+			ctx.JSON(iris.StatusUnauthorized, nil)
+		}
+	})
 }
 
 func checkError(err error) {
