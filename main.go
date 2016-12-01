@@ -36,7 +36,7 @@ func serverSetup() {
 	server.UseFunc(func(ctx *iris.Context) {
 		path := ctx.PathString()
 		log.Println("request path:", path)
-		if path != "/index" && path != "/logout" && path != "/login" && path != "/" && path != "/getallnodes" && path != "/parkinfo" && path != "/parklist" && path != "/parknodes" {
+		if path != "/index" && path != "/logout" && path != "/login" && path != "/auth" && path != "/" && path != "/getallnodes" && path != "/parkinfo" && path != "/parklist" && path != "/parknodes" {
 			if ctx.Session().GetString("username") != "" {
 				ctx.Next()
 			} else {
@@ -351,7 +351,7 @@ func serverSetup() {
 		ctx.JSON(iris.StatusOK, park.Nodes)
 	})
 	//给手机的验证密码
-	server.Post("/auth", func(ctx *iris.Context) {
+	server.Get("/auth", func(ctx *iris.Context) {
 		name := ctx.URLParam("username")
 		pass := ctx.URLParam("password")
 		log.Println("/auth", name, pass)
