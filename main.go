@@ -8,11 +8,16 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/kataras/go-template/html"
 	"github.com/kataras/iris"
+	"github.com/kataras/iris/sessions"
 )
 
-var server *iris.Framework
+var server *iris.Application
+
+var (
+	cookieNameForSessionID = "mycookiesessionnameid"
+	sess                   = sessions.New(sessions.Config{Cookie: cookieNameForSessionID})
+)
 
 func main() {
 	server = serverNew()
@@ -21,23 +26,26 @@ func main() {
 	serverRun()
 }
 
-func serverNew() *iris.Framework {
+func serverNew() *iris.Application {
 	return iris.New()
 }
 
 func serverSetup() {
-	server.Config.IsDevelopment = true
-	server.Config.Charset = "UTF-8"
 	server.StaticServe("static", "/static")
-	server.Static("/js", "./static/js", 1)
-	server.UseTemplate(html.New(html.Config{
-		Layout: "base.html",
-	})).Directory("template", ".html")
-	server.UseFunc(func(ctx *iris.Context) {
-		path := ctx.PathString()
+	server.StaticServe("/js", "./static/js")
+
+	temp := iris.HTML("./template", ".html")
+	temp.Layout("base.html")
+	temp.Reload(true)
+	server.RegisterView(temp.Binary(nil, nil))
+
+	server.Use(func(ctx iris.Context) {
+		// path := ctx.PathString()
+		path := ctx.Path()
 		log.Println("request path:", path)
 		if path != "/index" && path != "/logout" && path != "/login" && path != "/auth" && path != "/" && path != "/getallnodes" && path != "/parkinfo" && path != "/parklist" && path != "/parknodes" {
-			if ctx.Session().GetString("username") != "" {
+			session := sess.Start(ctx)
+			if session.GetString("username") != "" {
 				ctx.Next()
 			} else {
 				ctx.Redirect("/login")
@@ -49,38 +57,39 @@ func serverSetup() {
 		ctx.Next()
 	})
 
-	server.Get("/", func(ctx *iris.Context) {
+	server.Get("/", func(ctx iris.Context) {
 		ctx.Redirect("/index")
 	})
 
 	//主页
-	server.Get("/index", func(ctx *iris.Context) {
-		// ctx.MustRender("base.html", nil)
-		ctx.Render("index.html", struct{ Index bool }{true})
+	server.Get("/index", func(ctx iris.Context) {
+		// ctx.Render("index.html", struct{ Index bool }{true})
+		ctx.ViewData("Index", true)
+		ctx.View("index.html")
 	})
 
 	//管理员界面
-	server.Get("/admin", func(ctx *iris.Context) {
-		l := struct{ List []string }{model.GetDangerSpeciesList()}
-		err := ctx.Render("admin.html", l)
+	server.Get("/admin", func(ctx iris.Context) {
+		ctx.ViewData("List", model.GetDangerSpeciesList())
+		err := ctx.View("admin.html")
 		checkError(err)
 	})
 
 	//管理员界面的json数据
-	server.Get("/adminjson", func(ctx *iris.Context) {
+	server.Get("/adminjson", func(ctx iris.Context) {
 		ps := model.GetParks()
 		for i, _ := range ps {
 			ps[i].GetNodes()
 		}
-		ctx.JSON(iris.StatusOK, ps)
+		ctx.JSON(ps)
 	})
 
 	//添加危险源
-	server.Post("/adddanger", func(ctx *iris.Context) {
-		s := ctx.FormValueString("species")
-		n := ctx.FormValueString("name")
+	server.Post("/adddanger", func(ctx iris.Context) {
+		s := ctx.FormValue("species")
+		n := ctx.FormValue("name")
 		if s == "other" {
-			s = ctx.FormValueString("otherspecies")
+			s = ctx.FormValue("otherspecies")
 		}
 		log.Println(s, n)
 		d := model.Danger{Species: s, Name: n}
@@ -89,8 +98,9 @@ func serverSetup() {
 	})
 
 	//进入对应园区管理界面
-	server.Get("/park/:id", func(ctx *iris.Context) {
-		id, err := ctx.ParamInt("id")
+	server.Get("/park/:id", func(ctx iris.Context) {
+		// id, err := ctx.URLParamInt("id")
+		id, err := ctx.Params().GetInt("id")
 		checkError(err)
 
 		park := model.GetParkByID(uint(id))
@@ -105,41 +115,51 @@ func serverSetup() {
 		p.Park = *park
 		p.OnLineNodeMap, p.OffLineNode = mqtt.GetNodes(park)
 		p.Dangers = model.GetDangers()
-		log.Println(ctx.Render("park.html", p))
+		// ctx.ViewData("Park", p)
+		// ctx.ViewData("Name", p.Name)
+		// ctx.ViewData("", p)
+		ctx.ViewData("OnLineNodeMap", p.OnLineNodeMap)
+		ctx.ViewData("ID", p.ID)
+		ctx.ViewData("Name", p.Name)
+		ctx.ViewData("OffLineNode", p.OffLineNode)
+		ctx.ViewData("Dangers", p.Dangers)
+		log.Println(ctx.View("park.html"))
 	})
 
 	//获得所有节点
-	server.Get("/getallnodes", func(ctx *iris.Context) {
+	server.Get("/getallnodes", func(ctx iris.Context) {
 		nodes := model.GetNodes()
-		ctx.JSON(iris.StatusOK, nodes)
+		ctx.JSON(nodes)
 	})
 
 	//登陆
-	server.Get("/login", func(ctx *iris.Context) {
-		ctx.MustRender("login.html", nil)
+	server.Get("/login", func(ctx iris.Context) {
+		ctx.View("login.html")
 	})
 
-	server.Get("logout", func(ctx *iris.Context) {
-		ctx.Session().Clear()
+	server.Get("logout", func(ctx iris.Context) {
+		session := sess.Start(ctx)
+		session.Clear()
 		ctx.Redirect("/index")
 	})
 
-	server.Post("/login", func(ctx *iris.Context) {
-		username := ctx.FormValueString("username")
-		password := ctx.FormValueString("password")
+	server.Post("/login", func(ctx iris.Context) {
+		username := ctx.FormValue("username")
+		password := ctx.FormValue("password")
 		if (username == "changvvb" && password == "changvvb") || (username == "123456" && password == "123456") {
 			log.Println("login success")
-			ctx.Session().Set("username", username)
+			sess.Start(ctx).Set("username", username)
 			ctx.Redirect("/admin")
 		} else {
-			ctx.Render("login.html", struct{ LoginError bool }{true})
+			ctx.ViewData("LoginError", true)
+			ctx.View("login.html")
 		}
 	})
 
-	server.Get("/nodexy/:x/:y/:park", func(ctx *iris.Context) {
-		x, _ := ctx.ParamInt("x")
-		y, _ := ctx.ParamInt("y")
-		park, _ := ctx.ParamInt("park")
+	server.Get("/nodexy/:x/:y/:park", func(ctx iris.Context) {
+		x, _ := ctx.Params().GetInt("x")
+		y, _ := ctx.Params().GetInt("y")
+		park, _ := ctx.Params().GetInt("park")
 		log.Println(x, y)
 		park = park
 		id := model.GetIdByPosition(x, y, uint(park))
@@ -147,8 +167,8 @@ func serverSetup() {
 		ctx.Redirect("/node/" + fmt.Sprint(id))
 	})
 
-	server.Get("/node/:id", func(ctx *iris.Context) {
-		id, err := ctx.ParamInt("id")
+	server.Get("/node/:id", func(ctx iris.Context) {
+		id, err := ctx.Params().GetInt("id")
 		if err != nil {
 			log.Println(err)
 			return
@@ -162,41 +182,53 @@ func serverSetup() {
 		n := model.GetNodeByID(uint(id))
 		if n == nil {
 			log.Println("not found")
-			ctx.RenderWithStatus(iris.StatusNotFound, "404.html", nil)
+			ctx.StatusCode(iris.StatusNotFound)
+			ctx.View("404.html")
 			return
 		}
 		node.Node = *n
 		node.ParkName = model.GetParkByID(node.ParkRefer).Name
 		node.Dangers = model.GetDangers()
 
-		log.Println(ctx.Render("nodeview.html", node))
+		ctx.ViewData("Node", node)
+		ctx.ViewData("Danger", node.Danger)
+		ctx.ViewData("ParkRefer", node.ParkRefer)
+		ctx.ViewData("ParkName", node.ParkName)
+		ctx.ViewData("MinValue", node.MinValue)
+		ctx.ViewData("MaxValue", node.MaxValue)
+		ctx.ViewData("X", node.X)
+		ctx.ViewData("Y", node.Y)
+		ctx.ViewData("Describe", node.Describe)
+		ctx.ViewData("ID", node.ID)
+		log.Println(ctx.View("nodeview.html"))
 	})
 
 	//节点历史界面
-	server.Get("/nodehistory/:id", func(ctx *iris.Context) {
-		id, err := ctx.ParamInt("id")
+	server.Get("/nodehistory/:id", func(ctx iris.Context) {
+		id, err := ctx.URLParamInt("id")
 		if err != nil {
 			return
 		}
 		node := model.GetNodeByID(uint(id))
 		node.GetData()
-		log.Println(ctx.Render("nodehistory.html", node))
+		// log.Println(ctx.Render("nodehistory.html", node))
+		log.Println(ctx.View("nodehistory.html"))
 	})
 
 	//节点历史json数据
-	server.Get("/nodehistoryjson/:id", func(ctx *iris.Context) {
-		id, err := ctx.ParamInt("id")
+	server.Get("/nodehistoryjson/:id", func(ctx iris.Context) {
+		id, err := ctx.URLParamInt("id")
 		if err != nil {
 			return
 		}
 		node := model.GetNodeByID(uint(id))
 		node.GetData()
-		ctx.JSON(iris.StatusOK, node.Data)
+		ctx.JSON(node.Data)
 	})
 
-	server.Get("/nodeseries/:id", func(ctx *iris.Context) {
-		ctx.SetHeader("Content-type", "text/json")
-		idInt, err := ctx.ParamInt("id")
+	server.Get("/nodeseries/:id", func(ctx iris.Context) {
+		ctx.Header("Content-type", "text/json")
+		idInt, err := ctx.Params().GetInt("id")
 		if err != nil {
 			log.Println(err)
 			return
@@ -208,24 +240,24 @@ func serverSetup() {
 
 		if mqtt.OnLineNodeMap[id] == nil {
 			r[1] = nil
-			ctx.JSON(iris.StatusOK, r)
+			ctx.JSON(r)
 			return
 		}
 
 		r[1] = mqtt.OnLineNodeMap[id].FreshData.Data
-		ctx.JSON(iris.StatusOK, r)
+		ctx.JSON(r)
 	})
 
 	//修改节点
-	server.Post("nodemodify/:id", func(ctx *iris.Context) {
-		danger := ctx.FormValueString("danger")
-		max := ctx.FormValueString("max")
-		min := ctx.FormValueString("min")
-		describe := ctx.FormValueString("describe")
-		x := ctx.FormValueString("X")
-		y := ctx.FormValueString("Y")
+	server.Post("nodemodify/:id", func(ctx iris.Context) {
+		danger := ctx.FormValue("danger")
+		max := ctx.FormValue("max")
+		min := ctx.FormValue("min")
+		describe := ctx.FormValue("describe")
+		x := ctx.FormValue("X")
+		y := ctx.FormValue("Y")
 
-		ID, err := ctx.ParamInt("id")
+		ID, err := ctx.URLParamInt("id")
 		checkError(err)
 		Max, err := strconv.ParseFloat(max, 10)
 		checkError(err)
@@ -255,16 +287,16 @@ func serverSetup() {
 	})
 
 	//增加一个节点
-	server.Post("/nodeadd/:parkid", func(ctx *iris.Context) {
+	server.Post("/nodeadd/:parkid", func(ctx iris.Context) {
 		// danger := ctx.FormValueString("danger")
 		// danger := ctx.FormValues("danger")
-		danger := ctx.FormValueString("danger")
-		max := ctx.FormValueString("max")
-		min := ctx.FormValueString("min")
-		describe := ctx.FormValueString("describe")
-		x := ctx.FormValueString("X")
-		y := ctx.FormValueString("Y")
-		id, err := ctx.ParamInt("parkid")
+		danger := ctx.FormValue("danger")
+		max := ctx.FormValue("max")
+		min := ctx.FormValue("min")
+		describe := ctx.FormValue("describe")
+		x := ctx.FormValue("X")
+		y := ctx.FormValue("Y")
+		id, err := ctx.URLParamInt("parkid")
 		checkError(err)
 
 		Max, err := strconv.ParseFloat(max, 10)
@@ -291,8 +323,8 @@ func serverSetup() {
 	})
 
 	//删除一个节点
-	server.Post("/delete/:id", func(ctx *iris.Context) {
-		id, err := ctx.ParamInt("id")
+	server.Post("/delete/:id", func(ctx iris.Context) {
+		id, err := ctx.URLParamInt("id")
 		if err != nil {
 			log.Println(err)
 			return
@@ -302,8 +334,8 @@ func serverSetup() {
 		ctx.Redirect(fmt.Sprintf("/park/%d", pid))
 	})
 
-	server.Post("/deletepark/:id", func(ctx *iris.Context) {
-		id, err := ctx.ParamInt("id")
+	server.Post("/deletepark/:id", func(ctx iris.Context) {
+		id, err := ctx.URLParamInt("id")
 		if err != nil {
 			log.Println(err)
 			return
@@ -313,10 +345,10 @@ func serverSetup() {
 		ctx.Redirect("/admin")
 	})
 
-	server.Post("/addpark", func(ctx *iris.Context) {
-		name := ctx.FormValueString("name")
-		address := ctx.FormValueString("address")
-		tel := ctx.FormValueString("tel")
+	server.Post("/addpark", func(ctx iris.Context) {
+		name := ctx.FormValue("name")
+		address := ctx.FormValue("address")
+		tel := ctx.FormValue("tel")
 
 		p := &model.Park{
 			Name:    name,
@@ -328,37 +360,37 @@ func serverSetup() {
 	})
 
 	//给手机的,返回所有园区列表
-	server.Get("/parklist", func(ctx *iris.Context) {
+	server.Get("/parklist", func(ctx iris.Context) {
 		parks := model.GetParks()
-		ctx.JSON(iris.StatusOK, parks)
+		ctx.JSON(parks)
 	})
 	//给手机的,返回某个园区信息
-	server.Get("/parkinfo", func(ctx *iris.Context) {
+	server.Get("/parkinfo", func(ctx iris.Context) {
 		idint, err := ctx.URLParamInt("id")
 		checkError(err)
 		id := uint(idint)
 		park := model.GetParkByID(id)
 		park.GetNodes()
-		ctx.JSON(iris.StatusOK, park)
+		ctx.JSON(park)
 	})
 	//给手机的返回节点信息
-	server.Get("/parknodes", func(ctx *iris.Context) {
+	server.Get("/parknodes", func(ctx iris.Context) {
 		idint, err := ctx.URLParamInt("id")
 		checkError(err)
 		id := uint(idint)
 		park := model.GetParkByID(id)
 		park.GetNodes()
-		ctx.JSON(iris.StatusOK, park.Nodes)
+		ctx.JSON(park.Nodes)
 	})
 	//给手机的验证密码
-	server.Get("/auth", func(ctx *iris.Context) {
+	server.Get("/auth", func(ctx iris.Context) {
 		name := ctx.URLParam("username")
 		pass := ctx.URLParam("password")
 		log.Println("/auth", name, pass)
 		if name == "123456" && pass == "123456" {
-			ctx.JSON(iris.StatusOK, nil)
+			ctx.StatusCode(iris.StatusOK)
 		} else {
-			ctx.JSON(iris.StatusUnauthorized, nil)
+			ctx.StatusCode(iris.StatusUnauthorized)
 		}
 	})
 }
@@ -371,7 +403,7 @@ func checkError(err error) {
 }
 
 func serverRun() {
-	server.Listen(":7070")
+	server.Run(iris.Addr(":7070"))
 }
 
 func mqttSetup() {
