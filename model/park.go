@@ -9,8 +9,8 @@ type Park struct {
 	Name    string
 	Tel     string
 	Address string
-	Species string
-	Nodes   []Node `gorm:"ForeignKey:ParkRefer"`
+	// Species string
+	Nodes []Node `gorm:"ForeignKey:ParkRefer"`
 }
 
 func (p *Park) GetNodes() []Node {
@@ -29,12 +29,12 @@ func (p *Park) GetNodes() []Node {
 		s[p.Nodes[index].Danger.Species] = true
 	}
 
-	for index, _ := range s {
-		p.Species += (" " + index)
-		// if s[index] == true {
-		//     p.Species = append(p.Species, index)
-		// }
-	}
+	// for index, _ := range s {
+	//     p.Species += (" " + index)
+	//     // if s[index] == true {
+	//     //     p.Species = append(p.Species, index)
+	//     // }
+	// }
 
 	return p.Nodes
 }

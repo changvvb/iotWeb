@@ -205,7 +205,8 @@ func serverSetup() {
 
 	//节点历史界面
 	server.Get("/nodehistory/:id", func(ctx iris.Context) {
-		id, err := ctx.URLParamInt("id")
+		// id, err := ctx.URLParamInt("id")
+		id, err := ctx.Params().GetInt("id")
 		if err != nil {
 			return
 		}
@@ -217,7 +218,8 @@ func serverSetup() {
 
 	//节点历史json数据
 	server.Get("/nodehistoryjson/:id", func(ctx iris.Context) {
-		id, err := ctx.URLParamInt("id")
+		// id, err := ctx.URLParamInt("id")
+		id, err := ctx.Params().GetInt("id")
 		if err != nil {
 			return
 		}
@@ -257,7 +259,8 @@ func serverSetup() {
 		x := ctx.FormValue("X")
 		y := ctx.FormValue("Y")
 
-		ID, err := ctx.URLParamInt("id")
+		// ID, err := ctx.URLParamInt("id")
+		id, err := ctx.Params().GetInt("id")
 		checkError(err)
 		Max, err := strconv.ParseFloat(max, 10)
 		checkError(err)
@@ -278,11 +281,11 @@ func serverSetup() {
 			Y:        int(Y),
 			DangerID: model.GetDangerIDByString(danger),
 		}
-		model.UpdateNode(&node, uint(ID))
-		if n := mqtt.OnLineNodeMap[uint(ID)]; n != nil {
+		model.UpdateNode(&node, uint(id))
+		if n := mqtt.OnLineNodeMap[uint(id)]; n != nil {
 			n.UpdateNode()
 		}
-		ctx.Redirect("/node/" + fmt.Sprint(ID))
+		ctx.Redirect("/node/" + fmt.Sprint(id))
 
 	})
 
@@ -296,7 +299,8 @@ func serverSetup() {
 		describe := ctx.FormValue("describe")
 		x := ctx.FormValue("X")
 		y := ctx.FormValue("Y")
-		id, err := ctx.URLParamInt("parkid")
+		// id, err := ctx.URLParamInt("parkid")
+		id, err := ctx.Params().GetInt("id")
 		checkError(err)
 
 		Max, err := strconv.ParseFloat(max, 10)
@@ -324,7 +328,8 @@ func serverSetup() {
 
 	//删除一个节点
 	server.Post("/delete/:id", func(ctx iris.Context) {
-		id, err := ctx.URLParamInt("id")
+		// id, err := ctx.URLParamInt("id")
+		id, err := ctx.Params().GetInt("id")
 		if err != nil {
 			log.Println(err)
 			return
@@ -335,7 +340,8 @@ func serverSetup() {
 	})
 
 	server.Post("/deletepark/:id", func(ctx iris.Context) {
-		id, err := ctx.URLParamInt("id")
+		// id, err := ctx.URLParamInt("id")
+		id, err := ctx.Params().GetInt("id")
 		if err != nil {
 			log.Println(err)
 			return
@@ -366,7 +372,8 @@ func serverSetup() {
 	})
 	//给手机的,返回某个园区信息
 	server.Get("/parkinfo", func(ctx iris.Context) {
-		idint, err := ctx.URLParamInt("id")
+		// idint, err := ctx.URLParamInt("id")
+		idint, err := ctx.Params().GetInt("id")
 		checkError(err)
 		id := uint(idint)
 		park := model.GetParkByID(id)
@@ -375,7 +382,8 @@ func serverSetup() {
 	})
 	//给手机的返回节点信息
 	server.Get("/parknodes", func(ctx iris.Context) {
-		idint, err := ctx.URLParamInt("id")
+		// idint, err := ctx.URLParamInt("id")
+		idint, err := ctx.Params().GetInt("id")
 		checkError(err)
 		id := uint(idint)
 		park := model.GetParkByID(id)
