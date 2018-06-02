@@ -363,6 +363,7 @@ func serverSetup() {
 		}
 
 		model.AddPark(p)
+		ctx.Redirect("/admin")
 	})
 
 	//给手机的,返回所有园区列表
