@@ -2,12 +2,13 @@ package mqtt
 
 import (
 	"encoding/json"
-	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"iotWeb/model"
 	"log"
 	"math/rand"
 	"strings"
 	"time"
+
+	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
 type Message struct {
@@ -73,12 +74,16 @@ func messageHandler(client MQTT.Client, msg MQTT.Message) {
 	}
 }
 
+const (
+	mqttUrl = "tcp://120.77.86.243:1883"
+)
+
 func init() {
 
 	ch = make(chan int)
 	OnLineNodeMap = make(map[uint]*OnLineNode)
 
-	opts := MQTT.NewClientOptions().AddBroker("tcp://127.0.0.1:1883")
+	opts := MQTT.NewClientOptions().AddBroker(mqttUrl)
 	opts.SetClientID("server")
 	opts.SetDefaultPublishHandler(messageHandler)
 
@@ -178,6 +183,18 @@ func Subscribe(topic string, qos byte) {
 
 func Unsubscribe(topic string) {
 	if token := client.Unsubscribe(topic); token.Wait() && token.Error() != nil {
+		log.Println(token.Error())
+	}
+}
+
+func SendOn() {
+	if token := client.Publish("com", 1, false, "on"); token.Wait() && token.Error() != nil {
+		log.Println(token.Error())
+	}
+}
+
+func SendOff() {
+	if token := client.Publish("com", 1, false, "off"); token.Wait() && token.Error() != nil {
 		log.Println(token.Error())
 	}
 }

@@ -56,6 +56,8 @@
                     </div>
                 </div>
 
+                <button type="button" class="btn btn-primary " onclick="turnon();return false;">打开</button>
+                <button type="button" class="btn btn-danger" onclick="turnoff();return false;">关闭</button>
                 <button type="submit" class="btn btn-primary " onclick="history();return false;">查看历史</button>
                 <button type="submit" class="btn btn-primary " data-toggle="modal" data-target="#myModal">修改</button>
                 <!-- <button type="submit" id="submit" class="btn btn-warning "  disabled>提交</button> -->
@@ -190,6 +192,14 @@ $(function(){
     function deletenode() {
          post('/delete/{{ .ID}}');
      }
+
+    function turnon() {
+         post('/turnon');
+    }
+
+    function turnoff() {
+         post('/turnoff');
+    }
 
     function post(path, params, method) {
         method = method || "post"; // Set method to post by default if not specified.

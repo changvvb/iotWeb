@@ -402,6 +402,14 @@ func serverSetup() {
 			ctx.StatusCode(iris.StatusUnauthorized)
 		}
 	})
+
+	server.Post("/turnon", func(ctx iris.Context) {
+		mqtt.SendOn()
+	})
+
+	server.Post("/turnoff", func(ctx iris.Context) {
+		mqtt.SendOff()
+	})
 }
 
 func checkError(err error) {
