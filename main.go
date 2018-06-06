@@ -300,7 +300,7 @@ func serverSetup() {
 		x := ctx.FormValue("X")
 		y := ctx.FormValue("Y")
 		// id, err := ctx.URLParamInt("parkid")
-		id, err := ctx.Params().GetInt("id")
+		id, err := ctx.Params().GetInt("parkid")
 		checkError(err)
 
 		Max, err := strconv.ParseFloat(max, 10)
