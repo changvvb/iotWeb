@@ -382,7 +382,7 @@ func serverSetup() {
 		ctx.JSON(park)
 	})
 	//给手机的返回节点信息
-	server.Get("/parknodes", func(ctx iris.Context) {
+	server.Get("/parknodes/:id", func(ctx iris.Context) {
 		// idint, err := ctx.URLParamInt("id")
 		idint, err := ctx.Params().GetInt("id")
 		checkError(err)
